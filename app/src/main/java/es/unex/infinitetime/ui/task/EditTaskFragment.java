@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -108,6 +109,40 @@ public class EditTaskFragment extends Fragment {
                 binding.priorityTask.setText(String.valueOf(task.getPriority()));
                 binding.spinnerTaskState.setSelection(task.getState().ordinal());
                 binding.dateTask.setText(sdf.format(task.getDeadline()));
+
+                binding.cancelTaskBtn.setOnClickListener(v -> {
+                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                });
+                binding.acceptTaskBtn.setOnClickListener(v -> {
+                    task.setId(task.getId());
+                    task.setName(binding.nameTask.getText().toString());
+                    task.setDescription(binding.descriptionTask.getText().toString());
+                    task.setEffort(binding.spinnerTaskEffort.getSelectedItemPosition());
+                    task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
+                    //task.setState(binding.spinnerTaskState.getSelectedItemPosition());
+                    String date= binding.dateTask.getText().toString();
+                    Date date1 = null;
+
+                    try {
+                        date1 = new SimpleDateFormat("dd/MM/yyyy").parse(date);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    task.setDeadline(date1);
+
+
+                    AppExecutors.getInstance().diskIO().execute(()->{
+
+                        InfiniteDatabase.getDatabase(getContext()).taskDAO().update(task);
+
+                    });
+
+
+
+                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                });
+
+
             });
 
         });
