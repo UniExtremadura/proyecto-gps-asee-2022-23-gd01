@@ -10,11 +10,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Task;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
@@ -29,7 +33,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public interface OnItemClickListener {
         void onItemClick(Task item);
     }
-    
+
 
     public FavoriteAdapter(Context context, OnItemClickListener listener) {
         mContext = context;
@@ -99,6 +103,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
             binding.nameTaskItem.setText(task.getName());
 
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
+
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
             boolean isFavorite = false;
@@ -116,6 +122,19 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
             binding.deleteButtonTask.setOnClickListener(v -> {
                 // Lógica para eliminar la tarea
+                if(task.getName()!=null){
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        if(db.taskDAO().getTask(task.getId()) == null) {
+                            Snackbar.make(v, "La tarea no existe",Snackbar.LENGTH_SHORT).show();
+                        }
+                        else {
+                            //project.setUserId(persistenceUser.getUserId());
+                            db.taskDAO().delete(task);
+                            Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
             });
 
         }

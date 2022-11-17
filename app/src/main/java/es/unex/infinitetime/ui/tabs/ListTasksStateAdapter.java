@@ -1,26 +1,36 @@
 package es.unex.infinitetime.ui.tabs;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
+import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
+import es.unex.infinitetime.databinding.FragmentListTasksBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
 
 public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAdapter.ViewHolder> {
 
     private List<Task> mItems = new ArrayList<>();
     Context mContext;
+
 
     public interface OnItemClickListener {
         void onItemClick(Task item);
@@ -66,7 +76,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
     @NonNull
     @Override
     public ListTasksStateAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                            int viewType) {
+                                                               int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_item_task, parent, false);
 
@@ -126,8 +136,29 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
         public void bind(final Task task, final ListTasksStateAdapter.OnItemClickListener listener) {
 
             binding.nameTaskItem.setText(task.getName());
-
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
             itemView.setOnClickListener(v -> listener.onItemClick(task));
+
+            Button delete = binding.deleteButtonTask;
+
+
+            delete.setOnClickListener(v -> {
+
+                if(task.getName()!=null){
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        if(db.taskDAO().getTask(task.getId()) == null) {
+                            Snackbar.make(v, "La tarea no existe",Snackbar.LENGTH_SHORT).show();
+                        }
+                        else {
+                            //project.setUserId(persistenceUser.getUserId());
+                            db.taskDAO().delete(task);
+                            Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
+
+
         }
     }
 
