@@ -6,13 +6,15 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import java.util.List;
+
 @Dao
 public interface TaskDAO {
 
-    /*
-    @Query("SELECT * FROM task ")
-    List<Task> getAllTasks();
-     */
+
+    @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId)")
+    List <Task> getAllTaskFavorite(long userId);
+
     @Query("SELECT * FROM task WHERE id = :taskId")
     Task getTask(long taskId);
 
