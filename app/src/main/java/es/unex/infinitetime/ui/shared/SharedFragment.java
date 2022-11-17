@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentFavoriteBinding;
 import es.unex.infinitetime.databinding.FragmentSharedBinding;
 import es.unex.infinitetime.datosEjemplo.ExampleData;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.User;
 
 
@@ -71,19 +73,25 @@ public class SharedFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdapter.getItemCount() == 0)
-            loadItems();
+        loadItems();
     }
 
 
-    // Load stored ToDoItems
     private void loadItems() {
-        ExampleData ed = new ExampleData();
-        List<User> mItems = ed.getUsersList();
 
-        mAdapter.load(mItems);
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<User> insertUsers = new ExampleData().getUsersList();
+            insertUsers.forEach(user -> {
+                if(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getUser(user.getId()) == null) {
+                    InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().insert(user);
+                }
+            });
+            // Borrar las líneas anteiores al hacer la integración
+            List<User> users = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getAllUsers();
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                mAdapter.load(users);
+            });
+        });
     }
-
-
 
 }
