@@ -31,36 +31,6 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
     public ListTasksStateAdapter(Context context, ListTasksStateAdapter.OnItemClickListener listener) {
         mContext = context;
         this.listener = listener;
-
-        Task task = new Task(1, "Tarea 1",
-                "Descripción tarea 1", TaskState.TODO,
-                12, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(2, "Tarea 2",
-                "Descripción tarea 2", TaskState.TODO,
-                17, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(3, "Tarea 3",
-                "Descripción tarea 3", TaskState.DONE,
-                9, new Date(), 2, 1);
-
-        mItems.add(task);
-
-        task = new Task(4, "Tarea 4",
-                "Descripción tarea 4", TaskState.DONE,
-                7, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(5, "Tarea 5",
-                "Descripción tarea 5", TaskState.DOING,
-                17, new Date(), 1, 1);
-
-        mItems.add(task);
     }
 
     @NonNull

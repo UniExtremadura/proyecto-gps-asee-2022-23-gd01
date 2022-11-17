@@ -13,15 +13,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
 import es.unex.infinitetime.databinding.FragmentTasksBinding;
+import es.unex.infinitetime.datosEjemplo.ExampleData;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class ListTasksStateFragment extends Fragment {
 
-    public static final String Tag = "ListTasksStateFragment";
     public static final String ARG_PARAM1 = "taskState";
     public static final String ARG_PARAM2 = "projectId";
 
@@ -29,14 +39,12 @@ public class ListTasksStateFragment extends Fragment {
     private long projectId;
 
     ListTasksStateAdapter adapter;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
     private FragmentTasksBinding binding;
 
     @Override
     public void onResume() {
         super.onResume();
-
+        loadTasks();
     }
 
     @Override
@@ -57,9 +65,9 @@ public class ListTasksStateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = binding.recyclerView;
+        RecyclerView mRecyclerView = binding.recyclerView;
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         adapter = new ListTasksStateAdapter(getActivity().getApplicationContext(), item -> {
@@ -78,5 +86,83 @@ public class ListTasksStateFragment extends Fragment {
         args.putLong(ARG_PARAM2, projectId);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    private void loadTasks() {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+
+            User user = new User();
+            user.setId(PersistenceUser.getInstance().getUserId());
+            user.setPassword("24");
+            user.setUsername("Alex");
+            user.setEmail("alex@gmail.com");
+
+            if(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getUser(user.getId()) == null) {
+                InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().insert(user);
+            }
+
+            Project project = new Project();
+            project.setId(projectId);
+            project.setName("Proyecto 1");
+            project.setUserId(user.getId());
+
+            if(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().getProject(project.getId()) == null) {
+                InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().insert(project);
+            }
+
+            List<Task> tasks = new ArrayList<>();
+            Task task;
+
+            task = new Task();
+            task.setName("Tarea 1");
+            task.setProjectId(projectId);
+            task.setState(TaskState.TODO);
+            task.setDeadline(new Date());
+            task.setEffort(5);
+            task.setPriority(1);
+            task.setUserId(PersistenceUser.getInstance().getUserId());
+            tasks.add(task);
+
+            task = new Task();
+            task.setName("Tarea 2");
+            task.setProjectId(projectId);
+            task.setState(TaskState.DOING);
+            task.setDeadline(new Date());
+            task.setEffort(5);
+            task.setPriority(134);
+            task.setUserId(PersistenceUser.getInstance().getUserId());
+            tasks.add(task);
+
+            task = new Task();
+            task.setName("Tarea 4");
+            task.setProjectId(projectId);
+            task.setState(TaskState.DONE);
+            task.setDeadline(new Date());
+            task.setEffort(21);
+            task.setPriority(13);
+            task.setUserId(PersistenceUser.getInstance().getUserId());
+            tasks.add(task);
+
+            task = new Task();
+            task.setName("Tarea 3");
+            task.setProjectId(projectId);
+            task.setState(TaskState.TODO);
+            task.setDeadline(new Date());
+            task.setEffort(8);
+            task.setPriority(12);
+            task.setUserId(PersistenceUser.getInstance().getUserId());
+            tasks.add(task);
+
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(getActivity().getApplicationContext());
+            tasks.forEach(db.taskDAO()::insert);
+        });
+        // Borrar las anteriores líneas de código al realizar la integración
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<Task> tasks = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().getTasks(projectId);
+            tasks.removeIf(task -> task.getState() != state);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                adapter.load(tasks);
+            });
+        });
     }
 }
