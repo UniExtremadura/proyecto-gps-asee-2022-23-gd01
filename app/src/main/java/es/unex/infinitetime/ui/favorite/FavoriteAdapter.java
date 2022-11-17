@@ -13,18 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.SharedProject;
 import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
@@ -36,11 +31,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     private FragmentItemTaskBinding binding;
 
 
-
     public interface OnItemClickListener {
         void onItemClick(Task item);
     }
-
+    
 
     public FavoriteAdapter(Context context, OnItemClickListener listener) {
         mContext = context;
@@ -53,9 +47,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         binding = FragmentItemTaskBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        Log.d("Depurando", "onCreateViewHolder");
         return new ViewHolder(mContext,binding.getRoot());
-
     }
 
     @Override
@@ -100,7 +92,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
         private FragmentItemTaskBinding binding;
 
-
         public ViewHolder(Context context, View itemView) {
             super(itemView);
 
@@ -110,8 +101,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         }
 
         public void bind(final Task task, OnItemClickListener listener) {
-
-            Log.d("Depurando", "Bind");
 
             binding.nameTaskItem.setText(task.getName());
 
@@ -146,7 +135,14 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                     });
                 });
             });
+
+            binding.deleteButtonTask.setOnClickListener(v -> {
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.taskDAO().delete(task);
+                    Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                });
+            });
+
         }
     }
-
 }

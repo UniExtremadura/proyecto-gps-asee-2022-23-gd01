@@ -4,9 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,7 +42,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
     @NonNull
     @Override
     public ListTasksStateAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                               int viewType) {
+                                                            int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_item_task, parent, false);
 
@@ -100,8 +103,19 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
             binding.nameTaskItem.setText(task.getName());
             InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
-
             itemView.setOnClickListener(v -> listener.onItemClick(task));
+
+            Button delete = binding.deleteButtonTask;
+
+
+            delete.setOnClickListener(v -> {
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.taskDAO().delete(task);
+                    Snackbar.make(v, "Tarea "+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                });
+            });
+
+
 
             AppExecutors.getInstance().diskIO().execute(() -> {
                 boolean isFavorite;
