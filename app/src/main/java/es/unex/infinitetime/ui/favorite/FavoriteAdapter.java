@@ -10,12 +10,22 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.SharedProject;
 import es.unex.infinitetime.persistence.Task;
+import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -26,10 +36,11 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     private FragmentItemTaskBinding binding;
 
 
+
     public interface OnItemClickListener {
         void onItemClick(Task item);
     }
-    
+
 
     public FavoriteAdapter(Context context, OnItemClickListener listener) {
         mContext = context;
@@ -42,7 +53,9 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         binding = FragmentItemTaskBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        Log.d("Depurando", "onCreateViewHolder");
         return new ViewHolder(mContext,binding.getRoot());
+
     }
 
     @Override
@@ -87,6 +100,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
         private FragmentItemTaskBinding binding;
 
+
         public ViewHolder(Context context, View itemView) {
             super(itemView);
 
@@ -97,27 +111,41 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
         public void bind(final Task task, OnItemClickListener listener) {
 
+            Log.d("Depurando", "Bind");
+
             binding.nameTaskItem.setText(task.getName());
+
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
+            PersistenceUser user = PersistenceUser.getInstance();
 
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
-            boolean isFavorite = false;
-            // Comprobar si la tarea es favorita en la base de datos
-            binding.checkboxFavorite.setChecked(isFavorite);
-
-            binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                if(isChecked){
-                    // Lógica para añadir a favoritos
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                boolean isFavorite;
+                if(db.userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), task.getId()) == null){
+                    isFavorite = false;
                 }
-                else {
-                    // Lógica para quitar de favoritos
+                else{
+                    isFavorite = true;
                 }
-            });
 
-            binding.deleteButtonTask.setOnClickListener(v -> {
-                // Lógica para eliminar la tarea
-            });
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    binding.checkboxFavorite.setChecked(isFavorite);
+                    binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                        if(isChecked){
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().addFavorite(user.getUserId(), task.getId());
+                            });
 
+                        }
+                        else {
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().removeFavorite(user.getUserId(), task.getId());
+                            });
+                        }
+                    });
+                });
+            });
         }
     }
 

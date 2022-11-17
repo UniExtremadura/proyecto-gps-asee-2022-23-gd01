@@ -35,6 +35,9 @@ public interface UserDAO {
     @Query("SELECT * FROM favorite WHERE user_id = :userId")
     List<Favorite> getFavorites(long userId);
 
+    @Query("SELECT * FROM favorite WHERE user_id=:userId AND task_id=:taskId")
+    Favorite getFavorite(long userId, long taskId);
+
     @Query("SELECT * FROM project WHERE id IN (SELECT project_id FROM shared_project WHERE user_id = :userId)")
     List<Project> getProjectsShared(long userId);
 

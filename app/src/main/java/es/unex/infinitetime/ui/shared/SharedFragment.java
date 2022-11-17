@@ -80,13 +80,6 @@ public class SharedFragment extends Fragment {
     private void loadItems() {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            List<User> insertUsers = new ExampleData().getUsersList();
-            insertUsers.forEach(user -> {
-                if(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getUser(user.getId()) == null) {
-                    InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().insert(user);
-                }
-            });
-            // Borrar las líneas anteiores al hacer la integración
             List<User> users = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getAllUsers();
             AppExecutors.getInstance().mainThread().execute(() -> {
                 mAdapter.load(users);
