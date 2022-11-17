@@ -10,12 +10,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Task;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -99,26 +104,45 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
             binding.nameTaskItem.setText(task.getName());
 
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
+            PersistenceUser user = PersistenceUser.getInstance();
+
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
-            boolean isFavorite = false;
-            // Comprobar si la tarea es favorita en la base de datos
-            binding.checkboxFavorite.setChecked(isFavorite);
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                boolean isFavorite;
+                if(db.userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), task.getId()) == null){
+                    isFavorite = false;
+                }
+                else{
+                    isFavorite = true;
+                }
 
-            binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                if(isChecked){
-                    // Lógica para añadir a favoritos
-                }
-                else {
-                    // Lógica para quitar de favoritos
-                }
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    binding.checkboxFavorite.setChecked(isFavorite);
+                    binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                        if(isChecked){
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().addFavorite(user.getUserId(), task.getId());
+                            });
+
+                        }
+                        else {
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().removeFavorite(user.getUserId(), task.getId());
+                            });
+                        }
+                    });
+                });
             });
 
             binding.deleteButtonTask.setOnClickListener(v -> {
-                // Lógica para eliminar la tarea
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.taskDAO().delete(task);
+                    Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                });
             });
 
         }
     }
-
 }
