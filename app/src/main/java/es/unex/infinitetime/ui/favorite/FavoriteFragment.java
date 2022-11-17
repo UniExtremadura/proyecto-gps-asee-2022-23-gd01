@@ -83,79 +83,14 @@ public class FavoriteFragment extends Fragment {
     }
 
 
-    // Load stored ToDoItems
     private void loadItems() {
-
-        // Conseguir el identificador del usuario actual
-        // Obtener todas las tareas favoritas de ese usuario
         InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
 
-        Log.d("Depurando", "load de favorite");
-
-
-        AppExecutors.getInstance().diskIO().execute(()->{
-
-            User insertUser = new User();
-            insertUser.setId(PersistenceUser.getInstance().getUserId());
-            insertUser.setUsername("username1234");
-            insertUser.setEmail("hola@gmail.com");
-            insertUser.setPassword("1234");
-
-            Task insertTask = new Task();
-            insertTask.setName("Task 1");
-            insertTask.setEffort(5);
-            insertTask.setPriority(123);
-            insertTask.setDescription("Description 1");
-            insertTask.setDeadline(new Date());
-            insertTask.setProjectId(4003);
-            insertTask.setState(TaskState.DONE);
-            insertTask.setUserId(insertUser.getId());
-
-            Task insertTask2 = new Task();
-            insertTask2.setName("Task 2");
-            insertTask2.setEffort(5);
-            insertTask2.setPriority(123);
-            insertTask2.setDescription("Description 2");
-            insertTask2.setDeadline(new Date());
-            insertTask2.setProjectId(4003);
-            insertTask2.setState(TaskState.DONE);
-            insertTask2.setUserId(insertUser.getId());
-
-
-
-            Project project = new Project();
-            project.setId(4003);
-            project.setName("Project 1");
-            project.setDescription("Description 1");
-            project.setUserId(insertUser.getId());
-
-
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(insertUser.getUsername()) == null){
-                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(insertUser);
-                Log.d("Depurando", "Insertada:" );
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(project.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).projectDAO().insert(project);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(insertTask.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).taskDAO().insert(insertTask);
-                Log.d("Depurando", "Insertada:" );
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(insertTask2.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).taskDAO().insert(insertTask2);
-                Log.d("Depurando", "Insertada:" );
-            }
-
-            List<Task> mItems = db.projectDAO().getTasks(4003);
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), mItems.get(0).getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).taskDAO().addFavorite(PersistenceUser.getInstance().getUserId(), mItems.get(0).getId());
-            }
+        AppExecutors.getInstance().diskIO().execute(()-> {
             List<Task> m = db.userDAO().getFavoriteTasks(PersistenceUser.getInstance().getUserId());
             AppExecutors.getInstance().mainThread().execute(() -> {
                 mAdapter.load(m);
-                Log.d("Depurando", "Entra en favoriteFragment" +m.size());
             });
-
         });
 
 
