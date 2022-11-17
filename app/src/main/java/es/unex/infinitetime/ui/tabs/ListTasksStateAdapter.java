@@ -1,7 +1,6 @@
 package es.unex.infinitetime.ui.tabs;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,19 +17,16 @@ import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
-import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
-import es.unex.infinitetime.databinding.FragmentListTasksBinding;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAdapter.ViewHolder> {
 
     private List<Task> mItems = new ArrayList<>();
     Context mContext;
-
 
     public interface OnItemClickListener {
         void onItemClick(Task item);
@@ -41,42 +37,12 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
     public ListTasksStateAdapter(Context context, ListTasksStateAdapter.OnItemClickListener listener) {
         mContext = context;
         this.listener = listener;
-
-        Task task = new Task(1, "Tarea 1",
-                "Descripción tarea 1", TaskState.TODO,
-                12, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(2, "Tarea 2",
-                "Descripción tarea 2", TaskState.TODO,
-                17, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(3, "Tarea 3",
-                "Descripción tarea 3", TaskState.DONE,
-                9, new Date(), 2, 1);
-
-        mItems.add(task);
-
-        task = new Task(4, "Tarea 4",
-                "Descripción tarea 4", TaskState.DONE,
-                7, new Date(), 1, 1);
-
-        mItems.add(task);
-
-        task = new Task(5, "Tarea 5",
-                "Descripción tarea 5", TaskState.DOING,
-                17, new Date(), 1, 1);
-
-        mItems.add(task);
     }
 
     @NonNull
     @Override
     public ListTasksStateAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                               int viewType) {
+                                                            int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_item_task, parent, false);
 
@@ -143,21 +109,40 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
 
             delete.setOnClickListener(v -> {
-
-                if(task.getName()!=null){
-                    AppExecutors.getInstance().diskIO().execute(() -> {
-                        if(db.taskDAO().getTask(task.getId()) == null) {
-                            Snackbar.make(v, "La tarea no existe",Snackbar.LENGTH_SHORT).show();
-                        }
-                        else {
-                            //project.setUserId(persistenceUser.getUserId());
-                            db.taskDAO().delete(task);
-                            Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
-                        }
-                    });
-                }
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    db.taskDAO().delete(task);
+                    Snackbar.make(v, "Tarea "+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                });
             });
 
+
+
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                boolean isFavorite;
+                if(db.userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), task.getId()) == null){
+                    isFavorite = false;
+                }
+                else{
+                    isFavorite = true;
+                }
+
+                AppExecutors.getInstance().mainThread().execute(() -> {
+                    binding.checkboxFavorite.setChecked(isFavorite);
+                    binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                        if(isChecked){
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().addFavorite(PersistenceUser.getInstance().getUserId(), task.getId());
+                            });
+
+                        }
+                        else {
+                            AppExecutors.getInstance().diskIO().execute(()->{
+                                db.taskDAO().removeFavorite(PersistenceUser.getInstance().getUserId(), task.getId());
+                            });
+                        }
+                    });
+                });
+            });
 
         }
     }

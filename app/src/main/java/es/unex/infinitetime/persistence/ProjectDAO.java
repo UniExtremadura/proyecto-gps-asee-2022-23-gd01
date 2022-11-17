@@ -26,6 +26,9 @@ public interface ProjectDAO {
     @Query("DELETE FROM shared_project WHERE project_id = :projectId AND user_id = :userId")
     void stopSharingProject(long projectId, long userId);
 
+    @Query("SELECT * FROM shared_project WHERE project_id = :projectId and user_id = :userId")
+    SharedProject getSharedProject(long projectId, long userId);
+
     @Insert
     void insert(Project project);
 
