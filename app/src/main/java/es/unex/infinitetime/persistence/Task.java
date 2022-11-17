@@ -153,7 +153,7 @@ public class Task {
         task.setState(TaskStateConverter.toTaskState(Long.parseLong(taskRemote.getState())));
         task.setPriority(Long.parseLong(taskRemote.getPriority()));
         try {
-            task.setDeadline(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).parse(taskRemote.getDeadline()));
+            task.setDeadline(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(taskRemote.getDeadline()));
         } catch (ParseException e) {
             e.printStackTrace();
         };
