@@ -11,9 +11,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.Task;
+import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class EditTaskFragment extends Fragment {
 
@@ -35,21 +45,72 @@ public class EditTaskFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private int getSpinnerPosition(long effort){
+        for(int i = 0; i < binding.spinnerTaskEffort.getAdapter().getCount(); i++){
+            if(binding.spinnerTaskEffort.getAdapter().getItem(i).equals(String.valueOf(effort))){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskId = getArguments().getLong(ARG_PARAM1);
-        // Recuperar la tarea con el id taskId de la base de datos
-        // y rellenar los campos del formulario con los datos de la tarea
+        taskId = getArguments().getLong(ARG_PARAM1);;
 
-        binding.acceptTaskBtn.setOnClickListener(v -> {
-            // Actualizar la tarea con los datos del formulario
-            Navigation.findNavController(v).navigateUp();
+        // Borrar el siguiente código al integrar el caso de uso
+        Task insertTask = new Task();
+        insertTask.setId(taskId);
+        insertTask.setName("Task 1");
+        insertTask.setEffort(5);
+        insertTask.setPriority(123);
+        insertTask.setDescription("Description 1");
+        insertTask.setDeadline(new Date());
+        insertTask.setProjectId(4003);
+        insertTask.setState(TaskState.DOING);
+        insertTask.setUserId(PersistenceUser.getInstance().getUserId());
+
+        User user = new User();
+        user.setId(PersistenceUser.getInstance().getUserId());
+        user.setUsername("username1234");
+        user.setEmail("hola@gmail.com");
+        user.setPassword("1234");
+
+        Project project = new Project();
+        project.setId(4003);
+        project.setName("Project 1");
+        project.setDescription("Description 1");
+        project.setUserId(user.getId());
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(user.getId()) == null){
+                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(user);
+            }
+            if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(project.getId()) == null){
+                InfiniteDatabase.getDatabase(getContext()).projectDAO().insert(project);
+            }
+            if(InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(taskId) == null){
+                InfiniteDatabase.getDatabase(getContext()).taskDAO().insert(insertTask);
+            }
+        });
+        // Borrar el código anterior cuando se realice la integración
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            Task task = InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(taskId);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                binding.nameTask.setText(task.getName());
+                binding.descriptionTask.setText(task.getDescription());
+                binding.spinnerTaskEffort.setSelection(getSpinnerPosition(task.getEffort()));
+                binding.priorityTask.setText(String.valueOf(task.getPriority()));
+                binding.spinnerTaskState.setSelection(task.getState().ordinal());
+                binding.dateTask.setText(sdf.format(task.getDeadline()));
+            });
+
         });
 
-        binding.cancelTaskBtn.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigateUp();
-        });
     }
 }

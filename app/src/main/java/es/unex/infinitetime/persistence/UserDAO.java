@@ -14,6 +14,9 @@ public interface UserDAO {
     @Query("SELECT * FROM user WHERE username = :username")
     User getUser(String username);
 
+    @Query("SELECT * FROM user WHERE id = :userId")
+    User getUser(long userId);
+
     @Query("SELECT * FROM project WHERE user_id = :userId")
     List<Project> getProjectsCreated(long userId);
 
