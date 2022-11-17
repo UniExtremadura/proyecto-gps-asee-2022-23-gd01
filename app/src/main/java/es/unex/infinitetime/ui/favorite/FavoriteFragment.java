@@ -67,12 +67,6 @@ public class FavoriteFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
-        binding.addTaskFavorite.setOnClickListener(v -> {
-            // Crear una nueva tarea con los datos del formulario
-            // y añadirla a la base de datos
-            Navigation.findNavController(v).navigate(R.id.action_favorite_to_addTaskFragment);
-        });
-
     }
 
     @Override
