@@ -50,52 +50,24 @@ public class AddProjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        User user = new User();
-        user.setEmail("TestUser1");
-        user.setUsername("TestUser1");
-        user.setPassword("1111");
-        user.setId(PersistenceUser.getInstance().getUserId());
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            if(db.userDAO().getUser(user.getUsername()) != null) {
-                Snackbar.make(view, "El usuario ya existe", Snackbar.LENGTH_LONG).show();
-            }
-            else {
-                db.userDAO().insert(user);
-            }
-        });
-
-
         confirmNewProjectBtn = binding.confirmAddProjectBtn;
         confirmNewProjectBtn.setOnClickListener(v -> {
-            // Añadir proyecto a la base de datos
             Project project = new Project();
             String project_name = binding.ProjectNameEdit.getText().toString();
             String project_description = binding.ProjectDescription.getText().toString();
-            PersistenceUser persistenceUser = PersistenceUser.getInstance();
 
             if(!project_name.equals("")){
                 AppExecutors.getInstance().diskIO().execute(() -> {
-                    if(db.projectDAO().getProject(project.getId()) != null) {
-                        Snackbar.make(v, "El proyecto ya existe",Snackbar.LENGTH_SHORT).show();
-                    }
-                    else {
-                        //project.setUserId(persistenceUser.getUserId());
-                        project.setUserId(PersistenceUser.getInstance().getUserId());
-                        project.setName(project_name);
-                        project.setDescription(project_description);
-                        db.projectDAO().insert(project);
+                    project.setUserId(PersistenceUser.getInstance().getUserId());
+                    project.setName(project_name);
+                    project.setDescription(project_description);
+                    db.projectDAO().insert(project);
 
-                        Snackbar.make(v, "Proyecto -"+ project.getName()+"- creado", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(v, "Proyecto "+ project.getName()+" creado", Snackbar.LENGTH_SHORT).show();
 
-                        Bundle bundle = new Bundle();
-                        bundle.putString("project_name", project.getName());
-                        bundle.putString("description", project.getDescription());
-                        AppExecutors.getInstance().mainThread().execute(() -> Navigation
-                                .findNavController(v)
-                                .navigate(R.id.action_addProjectFragment_to_projects, bundle));
-                    }
+                    AppExecutors.getInstance().mainThread().execute(() -> Navigation
+                            .findNavController(v)
+                            .navigate(R.id.action_addProjectFragment_to_projects));
                 });
             }
         });
