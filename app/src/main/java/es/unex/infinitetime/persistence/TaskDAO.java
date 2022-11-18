@@ -18,6 +18,10 @@ public interface TaskDAO {
     @Query("SELECT COUNT (*) FROM task WHERE user_id=:userId AND state=:state")
     int getTasksNum(long userId, int state);
 
+
+    @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId)")
+    List <Task> getAllTaskFavorite(long userId);
+
     @Query("SELECT * FROM task WHERE id = :taskId")
     Task getTask(long taskId);
 

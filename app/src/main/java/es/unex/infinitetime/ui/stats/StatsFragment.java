@@ -47,47 +47,9 @@ public class StatsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        Log.d("Depurando", "onCreateView stadisticas");
 
 
         binding = FragmentStatsBinding.inflate(inflater, container, false);
-
-        Task insertTask = new Task();
-        insertTask.setId(112);
-        insertTask.setName("Task 1");
-        insertTask.setEffort(5);
-        insertTask.setPriority(123);
-        insertTask.setDescription("Description 1");
-        insertTask.setDeadline(new Date());
-        insertTask.setProjectId(4003);
-        insertTask.setState(TaskState.DOING);
-        insertTask.setUserId(PersistenceUser.getInstance().getUserId());
-
-        User user = new User();
-        user.setId(insertTask.getUserId());
-        user.setUsername("username1234");
-        user.setEmail("hola@gmail.com");
-        user.setPassword("1234");
-
-        Project project = new Project();
-        project.setId(4003);
-        project.setName("Project 1");
-        project.setDescription("Description 1");
-        project.setUserId(PersistenceUser.getInstance().getUserId());
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(user.getUsername()) == null){
-                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(user);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(project.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).projectDAO().insert(project);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(insertTask.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).taskDAO().insert(insertTask);
-                Log.d("Depurando", "Tarea Insertada:" );
-            }
-        });
 
         todoTv = binding.TareasPorHacer;
         doingTv = binding.TareasEmpezadas;
@@ -96,8 +58,6 @@ public class StatsFragment extends Fragment {
         pieChart = binding.piechart;
         setData();
 
-
-        Log.d("Depurando", "onCreateView de list of stats");
 
         return binding.getRoot();
     }
@@ -120,9 +80,6 @@ public class StatsFragment extends Fragment {
             Log.d("Depurando", "numDoing:" + numDoing);
             Log.d("Depurando", "numDone:" + numDone);
 
-//            numDone=2;
-//            numDoing=4;
-//            numTodo=3;
 
             todoTv.setText(Integer.toString(numTodo));
             doingTv.setText(Integer.toString(numDoing));
@@ -144,10 +101,6 @@ public class StatsFragment extends Fragment {
                             Integer.parseInt(doneTv.getText().toString()),
                             Color.parseColor("#EF5350")));
 
-
-            // To animate the pie chart
-
-
         });
 
         pieChart.startAnimation();
@@ -157,8 +110,6 @@ public class StatsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        Log.d("Depurando", "onResume de list of stats");
     }
 
 

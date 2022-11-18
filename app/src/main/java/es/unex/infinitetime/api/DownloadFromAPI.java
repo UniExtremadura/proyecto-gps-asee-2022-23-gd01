@@ -1,9 +1,14 @@
 package es.unex.infinitetime.api;
 
+import android.util.Log;
+
+import com.google.android.material.snackbar.Snackbar;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.persistence.Favorite;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
@@ -13,6 +18,7 @@ import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskDAO;
 import es.unex.infinitetime.persistence.User;
 import es.unex.infinitetime.persistence.UserDAO;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -23,14 +29,13 @@ public class DownloadFromAPI implements Runnable{
     private final UserRemoteDAO userRemoteDAO;
     private final ProjectRemoteDAO projectRemoteDAO;
     private final TaskRemoteDAO taskRemoteDAO;
-    private final SharedProjectRemoteDAO sharedProjectRemoteDAO;
     private final FavoriteRemoteDAO favoriteRemoteDAO;
 
     private final UserDAO userDAO;
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    private User user;
+    private long userId;
 
     public DownloadFromAPI() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -41,26 +46,24 @@ public class DownloadFromAPI implements Runnable{
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
         projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
         taskRemoteDAO = retrofit.create(TaskRemoteDAO.class);
-        sharedProjectRemoteDAO = retrofit.create(SharedProjectRemoteDAO.class);
         favoriteRemoteDAO = retrofit.create(FavoriteRemoteDAO.class);
 
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
 
-        user = new User();
+        userId = PersistenceUser.getInstance().getUserId();
     }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
 
     @Override
     public void run() {
         try {
-            UserRemote userRemote = userRemoteDAO.getUser(user.getUsername()).execute().body();
-            assert userRemote != null;
+            User user = userDAO.getUser(userId);
+            UserRemote userRemote = userRemoteDAO.getUser(String.valueOf(user.getId())).execute().body().get(0);
+            if(userRemote == null){
+                Log.d("DownloadFromAPI", "User not found");
+                return;
+            }
             User userUpdate = User.userFromRemote(userRemote);
             userDAO.update(userUpdate);
 
@@ -81,14 +84,8 @@ public class DownloadFromAPI implements Runnable{
             List<Favorite> favorites = favoritesRemote.stream().map(Favorite::fromRemote).collect(Collectors.toList());
             userDAO.deleteFavorites(userUpdate.getId());
             favorites.forEach(userDAO::insertFavorite);
-
-            List<SharedProjectRemote> sharedProjectsRemote = sharedProjectRemoteDAO.getSharedProjectsByUser(userRemote.getId()).execute().body();
-            assert sharedProjectsRemote != null;
-            List<SharedProject> sharedProjects = sharedProjectsRemote.stream().map(SharedProject::fromRemote).collect(Collectors.toList());
-            userDAO.deleteSharedProjects(userUpdate.getId());
-            sharedProjects.forEach(userDAO::insertSharedProject);
         }
-        catch (IOException e){
+        catch (Exception e){
             e.printStackTrace();
         }
     }
