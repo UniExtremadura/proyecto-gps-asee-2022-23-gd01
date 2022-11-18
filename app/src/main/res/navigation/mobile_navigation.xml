@@ -117,7 +117,12 @@
     <fragment
         android:id="@+id/editTaskFragment"
         android:name="es.unex.infinitetime.ui.task.EditTaskFragment"
-        android:label="Tarea" />
+        android:label="Tarea">
+        <action
+            android:id="@+id/action_editTaskFragment_to_listTasksFragment"
+            app:destination="@id/listTasksFragment" />
+
+    </fragment>
     <fragment
         android:id="@+id/sharedFragment"
         android:name="es.unex.infinitetime.ui.shared.SharedFragment"
