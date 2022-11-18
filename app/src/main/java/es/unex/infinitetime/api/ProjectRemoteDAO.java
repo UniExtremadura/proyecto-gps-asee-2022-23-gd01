@@ -11,13 +11,13 @@ import retrofit2.http.Path;
 
 public interface ProjectRemoteDAO {
 
-    @GET("tab/projects/user_id/{user_id}")
+    @GET("tabs/projects/user_id/{user_id}")
     public Call<List<ProjectRemote>> getProjectsByUser(@Path("user_id") String userId);
-    @GET("tab/projects")
+    @GET("tabs/projects")
     public Call<List<ProjectRemote>> getAllProjects();
-    @POST("tab/projects")
+    @POST("tabs/projects")
     public Call<List<ProjectRemote>> insertProjects(@Body List<ProjectRemote> projects);
 
-    @DELETE("tab/projects/user_id/{user_id}")
+    @DELETE("tabs/projects/user_id/{user_id}")
     public Call<List<ProjectRemote>> deleteProjectsByUser(@Path("user_id") String userId);
 }

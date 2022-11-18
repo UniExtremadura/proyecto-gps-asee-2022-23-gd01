@@ -29,6 +29,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import es.unex.infinitetime.databinding.FragmentEditProjectBinding;
 import es.unex.infinitetime.R;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class EditProjectFragment extends Fragment {
@@ -67,57 +68,24 @@ public class EditProjectFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         projectId = getArguments().getLong(ARG_PARAM1);
-        // Recuperar el proyecto con el id projectId
-        // Poner los datos del proyecto en los campos de texto
 
         confirmEditCheck = binding.checkEditBtn;
         cancelEditCheck = binding.cancelEditBtn;
 
-
-        // Borrar el siguiente código al integrar el caso de uso
-
-        User user = new User();
-        user.setId(1332);
-        user.setUsername("username1234");
-        user.setEmail("hola@gmail.com");
-        user.setPassword("1234");
-
-        Project insertProject = new Project();
-        insertProject.setId(projectId);
-        insertProject.setName("Project 1");
-        insertProject.setDescription("Description 1");
-        insertProject.setUserId(user.getId());
-
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(user.getUsername()) == null){
-                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(user);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(projectId) == null){
-                InfiniteDatabase.getDatabase(getContext()).projectDAO().insert(insertProject);
-            }
-        });
-
-
-        // Borrar el código anterior cuando se realice la integración
-
         AppExecutors.getInstance().diskIO().execute(() -> {
             Project project = InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(projectId);
-
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 binding.ProjectNameEdit.setText(project.getName());
                 binding.ProjectDescriptionEdit.setText(project.getDescription());
-                Log.d("Depurando", "Usuario y proyecto insertado");
             });
         });
         confirmEditCheck.setOnClickListener(v -> {
-            // Implementar lógica de edición de proyecto
             String projectName= binding.ProjectNameEdit.getText().toString();
             String projectDescription=binding.ProjectDescriptionEdit.getText().toString();
             Project updateProject=new Project();
             updateProject.setId(projectId);
-            updateProject.setUserId(user.getId());
+            updateProject.setUserId(PersistenceUser.getInstance().getUserId());
             updateProject.setName(projectName);
             updateProject.setDescription(projectDescription);
             AppExecutors.getInstance().diskIO().execute(() -> {
