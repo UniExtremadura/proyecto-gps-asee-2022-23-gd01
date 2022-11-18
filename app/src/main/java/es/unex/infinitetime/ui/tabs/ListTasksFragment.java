@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import es.unex.infinitetime.ui.project.ListProjectAdapter;
 import es.unex.infinitetime.R;
@@ -22,11 +23,7 @@ import es.unex.infinitetime.persistence.TaskState;
 import es.unex.infinitetime.ui.stats.StatsFragment;
 import es.unex.infinitetime.databinding.FragmentListTasksBinding;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link StatsFragment #newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class ListTasksFragment extends Fragment {
 
     private static final String Tag = "ListTasksFragment";
@@ -36,7 +33,7 @@ public class ListTasksFragment extends Fragment {
     private long projectId;
 
     private TabLayout tabLayout;
-    private ViewPager viewPager;
+    private ViewPager2 viewPager;
     private FragmentListTasksBinding binding;
 
     private RecyclerView mRecyclerView;
@@ -47,24 +44,7 @@ public class ListTasksFragment extends Fragment {
 
 
     public ListTasksFragment() {
-        // Required empty public constructor
-    }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param projectId .
-     * @return
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ListTasksFragment newInstance(long projectId) {
-        Log.d(Tag, "ListTasksFragment");
-        ListTasksFragment fragment = new ListTasksFragment();
-        Bundle args = new Bundle();
-        args.putLong(ARG_PARAM1, projectId);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -87,21 +67,19 @@ public class ListTasksFragment extends Fragment {
         tabLayout = binding.tabLayout;
         viewPager = binding.viewPager;
 
-        tabLayout.setupWithViewPager(viewPager);
-
-        Bundle bundle = getArguments();
-
-        TabsTasksListAdapter tabsTasksListAdapter = new TabsTasksListAdapter(getParentFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-
-        tabsTasksListAdapter.addFragment(ListTasksStateFragment.newInstance(TaskState.TODO, projectId), "Sin empezar");
-        tabsTasksListAdapter.addFragment(ListTasksStateFragment.newInstance(TaskState.DOING, projectId), "En progreso");
-        tabsTasksListAdapter.addFragment(ListTasksStateFragment.newInstance(TaskState.DONE, projectId), "Hechas");
+        TabsTasksListAdapter tabsTasksListAdapter = new TabsTasksListAdapter(this);
         viewPager.setAdapter(tabsTasksListAdapter);
 
+        String namesTabs[] = {"Sin empezar", "En progreso", "Hechas"};
+
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> tab.setText(namesTabs[position])
+        ).attach();
+
+        Bundle bundle = getArguments();
         addNewTask= binding.AddProject;
         addNewTask.setOnClickListener(view -> {
             Navigation.findNavController(view).navigate(R.id.action_listTasksFragment_to_addTaskFragment, bundle);
-
             Log.d("Depurando", "Se ha pulsado el botón de añadir tarea");
         });
 

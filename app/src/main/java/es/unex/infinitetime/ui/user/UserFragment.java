@@ -24,6 +24,7 @@ import es.unex.infinitetime.ui.login.PersistenceUser;
 public class UserFragment extends Fragment {
 
     private FragmentUserBinding binding;
+    private long user_id;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -43,44 +44,46 @@ public class UserFragment extends Fragment {
         InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
 
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
-        long user_id = persistenceUser.getUserId();
+        user_id = persistenceUser.getUserId();
 
-        User u = new User();
-        u.setId(user_id);
 
-        //Prueba para ver que funcione el eliminar
-        //Se eliminara en la integracion
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            User user = db.userDAO().getUser(user_id);
 
-        PersistenceUser persistenceUser2 = PersistenceUser.getInstance();
-        persistenceUser2.setUserId(0);
-        User u2 = new User();
-        u2.setId(persistenceUser2.getUserId());
-        u2.setUsername("prueba");
-        Log.d("DEPURANDO", "Añadido usuario con id: " + u2.getId());
-
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                binding.textEditUsernameUser.setText(user.getUsername());
+                binding.textEditEmailUser.setText(user.getEmail());
+                binding.textEditPasswordUser.setText(user.getPassword());
+            });
+        });
 
         binding.btnUser.setOnClickListener(v -> {
-            // Implementar la lógica de editar usuario
+
+            if(binding.textEditUsernameUser.getText().toString() != null
+                    && binding.textEditEmailUser.getText().toString() != null
+                    && binding.textEditPasswordUser.getText().toString() != null
+                    && !binding.textEditUsernameUser.getText().toString().equals("")
+                    && !binding.textEditEmailUser.getText().toString().equals("")
+                    && !binding.textEditPasswordUser.getText().toString().equals("")){
+                AppExecutors.getInstance().diskIO().execute(() -> {
+
+                    User user = db.userDAO().getUser(user_id);
+                    user.setUsername(binding.textEditUsernameUser.getText().toString());
+                    user.setEmail(binding.textEditEmailUser.getText().toString());
+                    user.setPassword(binding.textEditPasswordUser.getText().toString());
+                    db.userDAO().update(user);
+
+                });
+            }
         });
 
         binding.btnDeleteUser.setOnClickListener(v -> {
 
-            /*
-            Usando el identificador del usuario obtenido desde PersistenceUser borrar el usuario de la base de datos.
-            Navegar dentro de la aplicación a la pantalla de login.
-            */
-            //Eliminar el siguiente bloque para la integracion porque es una prueba
-
-            Log.d("DEPURANDO - BORRAR USUARIO", "Borrando usuario con id: " + u2.getId());
-            AppExecutors.getInstance().diskIO().execute(() -> {
-                db.userDAO().delete(u2);
-                Log.d("DEPURANDO", "Obteniendo usuario borrado: " + db.userDAO().getUser("prueba"));
-            });
-
 
             AppExecutors.getInstance().diskIO().execute(() -> {
-                Log.d("DEPURANDO - BORRAR USUARIO", "Borrando usuario con id: " + user_id);
-                db.userDAO().delete(u);
+                User user = new User();
+                user.setId(PersistenceUser.getInstance().getUserId());
+                db.userDAO().delete(user);
             });
             Navigation.findNavController(v).navigate(R.id.loginFragment);
         });

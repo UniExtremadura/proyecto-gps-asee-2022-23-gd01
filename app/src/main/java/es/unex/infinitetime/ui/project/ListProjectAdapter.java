@@ -1,6 +1,8 @@
 package es.unex.infinitetime.ui.project;
 
 
+import static java.security.AccessController.getContext;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,14 +14,18 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 //import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
 import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.User;
 
 public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -102,6 +108,7 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
 
             binding.tvItemProjectName.setText(project.getName());
 
+            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
             itemView.setOnClickListener(v -> listener.onItemClick(project));
 
             FloatingActionButton edit = binding.editProjectItemBtn;
@@ -116,7 +123,13 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
             });
 
             delete.setOnClickListener(v -> {
-                // Lógica de borrado del proyecto
+
+                if(project.getName()!=null){
+                    AppExecutors.getInstance().diskIO().execute(() -> {
+                        db.projectDAO().delete(project);
+                        Snackbar.make(v, "Proyecto "+ project.getName()+" borrado", Snackbar.LENGTH_SHORT).show();
+                    });
+                }
             });
 
             share.setOnClickListener(v -> {
