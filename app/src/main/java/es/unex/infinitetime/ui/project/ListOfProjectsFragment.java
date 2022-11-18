@@ -15,12 +15,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentListOfProjectsBinding;
 import es.unex.infinitetime.datosEjemplo.ExampleData;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 import es.unex.infinitetime.ui.tabs.ListTasksFragment;
 
 
@@ -60,11 +65,7 @@ public class ListOfProjectsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdapter.getItemCount() == 0)
-            loadItems();
-        Log.d("Depurando", "onResume de list of projects");
-
-
+        loadItems();
     }
 
     @Override
@@ -84,34 +85,25 @@ public class ListOfProjectsFragment extends Fragment {
         addNewProject = binding.AddProject;
         addNewProject.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_projects_to_addProjectFragment);
-            Log.d("Depurando", "Se ha pulsado el botón de añadir proyecto");
         });
+
+        user_id = PersistenceUser.getInstance().getUserId();
 
         mRecyclerView.setAdapter(mAdapter);
     }
 
-    // Load stored ToDoItems
     private void loadItems() {
-        ExampleData ed = new ExampleData();
-        List<Project> mItems = ed.getProjectsList();
-        /*ToDoItemCRUD crud = ToDoItemCRUD.getInstance(this);
-        List<ToDoItem> items = crud.getAll();
+        List<Project> mItems = new ArrayList<>();
+
         AppExecutors.getInstance().diskIO().execute(() -> {
-            InfiniteDatabase db = InfiniteDatabase.getDatabase(getActivity().getApplicationContext());
-            List<Project> mItems=db.projectDAO().getAllProject();
 
-             mAdapter.load(mItems);
+            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsCreated(user_id));
+            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsShared(user_id));
 
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                mAdapter.load(mItems);
+            });
         });
-        */
-        mAdapter.load(mItems);
-    }
 
-    public void swapFragment(FloatingActionButton edit){
-
-        edit.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_projects_to_editProjectFragment);
-            Log.d("Depurando", "Se ha pulsado el botón de editar proyecto");
-        });
     }
 }
