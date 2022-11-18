@@ -46,28 +46,9 @@ public class UserFragment extends Fragment {
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         user_id = persistenceUser.getUserId();
 
-        // quitar este codigo en la integracion
-        User u = new User();
-        u.setId(user_id);
-        u.setEmail("prueba@gmail.com");
-        u.setPassword("prueba");
-        u.setUsername("prueba");
-
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-            Log.d("DEPURANDO - INSERTAR USUARIO", "Insertando usuario con id: " + user_id);
-            if(db.userDAO().getUser(u.getId()) != null){
-                Log.d("DEPURANDO - INSERTAR USUARIO", "El usuario ya existe");
-            }
-            else{
-                db.userDAO().insert(u);
-            }
-        });
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            Log.d("DEPURANDO - OBTENER USUARIO", "Obteniendo usuario con id: " + user_id);
             User user = db.userDAO().getUser(user_id);
-            Log.d("DEPURANDO - OBTENER USUARIO", "Usuario obtenido: " + user.getUsername());
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 binding.textEditUsernameUser.setText(user.getUsername());
@@ -81,17 +62,17 @@ public class UserFragment extends Fragment {
             if(binding.textEditUsernameUser.getText().toString() != null
                     && binding.textEditEmailUser.getText().toString() != null
                     && binding.textEditPasswordUser.getText().toString() != null
-                    && binding.textEditUsernameUser.getText().toString().equals("") == false
-                    && binding.textEditEmailUser.getText().toString().equals("") == false
-                    && binding.textEditPasswordUser.getText().toString().equals("") == false){
+                    && !binding.textEditUsernameUser.getText().toString().equals("")
+                    && !binding.textEditEmailUser.getText().toString().equals("")
+                    && !binding.textEditPasswordUser.getText().toString().equals("")){
                 AppExecutors.getInstance().diskIO().execute(() -> {
-                    Log.d("DEPURANDO - ACTUALIZAR USUARIO", "Actualizando usuario con id: " + user_id);
+
                     User user = db.userDAO().getUser(user_id);
                     user.setUsername(binding.textEditUsernameUser.getText().toString());
                     user.setEmail(binding.textEditEmailUser.getText().toString());
                     user.setPassword(binding.textEditPasswordUser.getText().toString());
                     db.userDAO().update(user);
-                    Log.d("DEPURANDO - ACTUALIZAR USUARIO", "Usuario actualizado: " + user.getUsername());
+
                 });
             }
         });

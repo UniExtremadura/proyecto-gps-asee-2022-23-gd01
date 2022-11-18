@@ -11,13 +11,13 @@ import retrofit2.http.Path;
 
 public interface TaskRemoteDAO {
 
-    @GET("tab/tasks/user_id/{user_id}")
+    @GET("tabs/tasks/user_id/{user_id}")
     public Call<List<TaskRemote>> getTasksByUser(@Path("user_id") String userId);
 
-    @POST("tab/tasks")
+    @POST("tabs/tasks")
     public Call<List<TaskRemote>> insertTasks(@Body List<TaskRemote> tasks);
 
-    @DELETE("tab/tasks/user_id/{user_id}")
+    @DELETE("tabs/tasks/user_id/{user_id}")
     public Call<List<TaskRemote>> deleteTasksByUser(@Path("user_id") String userId);
 
 }

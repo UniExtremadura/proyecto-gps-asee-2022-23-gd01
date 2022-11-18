@@ -13,15 +13,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
 import es.unex.infinitetime.databinding.FragmentTasksBinding;
+import es.unex.infinitetime.datosEjemplo.ExampleData;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class ListTasksStateFragment extends Fragment {
 
-    public static final String Tag = "ListTasksStateFragment";
     public static final String ARG_PARAM1 = "taskState";
     public static final String ARG_PARAM2 = "projectId";
 
@@ -29,14 +39,12 @@ public class ListTasksStateFragment extends Fragment {
     private long projectId;
 
     ListTasksStateAdapter adapter;
-    private RecyclerView mRecyclerView;
-    private LinearLayoutManager mLayoutManager;
     private FragmentTasksBinding binding;
 
     @Override
     public void onResume() {
         super.onResume();
-
+        loadTasks();
     }
 
     @Override
@@ -57,9 +65,9 @@ public class ListTasksStateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = binding.recyclerView;
+        RecyclerView mRecyclerView = binding.recyclerView;
         mRecyclerView.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         adapter = new ListTasksStateAdapter(getActivity().getApplicationContext(), item -> {
@@ -78,5 +86,16 @@ public class ListTasksStateFragment extends Fragment {
         args.putLong(ARG_PARAM2, projectId);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    private void loadTasks() {
+
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            List<Task> tasks = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().getTasks(projectId);
+            tasks.removeIf(task -> task.getState() != state);
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                adapter.load(tasks);
+            });
+        });
     }
 }

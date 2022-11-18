@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.User;
 import es.unex.infinitetime.persistence.UserDAO;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -17,12 +18,12 @@ public class UploadToAPI implements Runnable {
     private final UserRemoteDAO userRemoteDAO;
     private final ProjectRemoteDAO projectRemoteDAO;
     private final TaskRemoteDAO taskRemoteDAO;
-    private final SharedProjectRemoteDAO sharedProjectRemoteDAO;
     private final FavoriteRemoteDAO favoriteRemoteDAO;
 
     private final UserDAO userDAO;
 
-    private User user;
+    private final long userId;
+
 
     public UploadToAPI() {
         Retrofit retrofit = new Retrofit.Builder()
@@ -33,22 +34,18 @@ public class UploadToAPI implements Runnable {
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
         projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
         taskRemoteDAO = retrofit.create(TaskRemoteDAO.class);
-        sharedProjectRemoteDAO = retrofit.create(SharedProjectRemoteDAO.class);
         favoriteRemoteDAO = retrofit.create(FavoriteRemoteDAO.class);
 
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
 
-        user = new User();
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+        userId = PersistenceUser.getInstance().getUserId();
     }
 
     @Override
     public void run() {
         try {
-            UserRemote userRemote = UserRemote.fromUser(userDAO.getUser(user.getUsername()));
+            User user = userDAO.getUser(userId);
+            UserRemote userRemote = UserRemote.fromUser(userDAO.getUser(user.getId()));
             userRemoteDAO.deleteUser(userRemote.getId()).execute();
             userRemoteDAO.insertUser(userRemote).execute();
 
@@ -66,13 +63,6 @@ public class UploadToAPI implements Runnable {
             taskRemoteDAO.deleteTasksByUser(userRemote.getId()).execute();
             taskRemoteDAO.insertTasks(tasksRemote).execute();
 
-            List<SharedProjectRemote> sharedProjectsRemote = userDAO.getShared(user.getId()).stream().map(
-                    SharedProjectRemote::fromSharedProject
-            ).collect(Collectors.toList());
-
-            sharedProjectRemoteDAO.deleteSharedProjectsByUser(userRemote.getId()).execute();
-            sharedProjectRemoteDAO.insertSharedProjects(sharedProjectsRemote).execute();
-
             List<FavoriteRemote> favoritesRemote = userDAO.getFavorites(user.getId()).stream().map(
                     FavoriteRemote::fromFavorite
             ).collect(Collectors.toList());
@@ -80,7 +70,7 @@ public class UploadToAPI implements Runnable {
             favoriteRemoteDAO.deleteFavorites(userRemote.getId()).execute();
             favoriteRemoteDAO.insertFavorites(favoritesRemote).execute();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
