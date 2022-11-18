@@ -79,7 +79,13 @@ public class UserFragment extends Fragment {
 
         binding.btnDeleteUser.setOnClickListener(v -> {
 
-            //Implementar la logica de borrado de usuario
+
+            AppExecutors.getInstance().diskIO().execute(() -> {
+                User user = new User();
+                user.setId(PersistenceUser.getInstance().getUserId());
+                db.userDAO().delete(user);
+            });
+            Navigation.findNavController(v).navigate(R.id.loginFragment);
         });
 
 
