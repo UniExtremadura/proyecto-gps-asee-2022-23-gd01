@@ -85,7 +85,6 @@ public class ListOfProjectsFragment extends Fragment {
         addNewProject = binding.AddProject;
         addNewProject.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_projects_to_addProjectFragment);
-            Log.d("Depurando", "Se ha pulsado el botón de añadir proyecto");
         });
 
         user_id = PersistenceUser.getInstance().getUserId();
@@ -97,29 +96,6 @@ public class ListOfProjectsFragment extends Fragment {
         List<Project> mItems = new ArrayList<>();
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-
-            User user = new User();
-            user.setId(user_id);
-            user.setEmail("email");
-            user.setPassword("password");
-            user.setUsername("name");
-
-            if(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getUser(user_id) == null){
-                InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().insert(user);
-            }
-
-            Project project = new Project();
-            project.setName("Proyecto de ejemplo1");
-            project.setDescription("Descripción del proyecto de ejemplo1");
-            project.setUserId(user_id);
-            InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().insert(project);
-
-            project = new Project();
-            project.setName("Proyecto de ejemplo2");
-            project.setDescription("Descripción del proyecto de ejemplo2");
-            project.setUserId(user_id);
-            InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().insert(project);
-            // Borrar las líneas anteriores al hacer la integración
 
             mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsCreated(user_id));
             mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsShared(user_id));

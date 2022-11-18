@@ -14,12 +14,16 @@ import android.view.ViewGroup;
 
 import android.widget.Button;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.DrawerLocker;
 import es.unex.infinitetime.databinding.FragmentLoginBinding;
 
 import es.unex.infinitetime.R;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.User;
 
 public class LoginFragment extends Fragment {
 
@@ -50,16 +54,38 @@ public class LoginFragment extends Fragment {
         final TextInputEditText passwordEditText = binding.textEditPasswordLogin;
         final Button loginButton = binding.btnLogin;
 
+        if(getArguments() != null){
+            usernameEditText.setText(getArguments().getString("username"));
+            passwordEditText.setText(getArguments().getString("password"));
+        }
+
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         persistenceUser.deleteUserId();
 
-        loginButton.setOnClickListener(v -> {
-            // Crear la lógica del login
+        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
 
-            ((DrawerLocker) getActivity()).setDrawerEnabled(true);
-            persistenceUser.setUserId(12);
-            persistenceUser.saveUserId();
-            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_favorite);
+        loginButton.setOnClickListener(v -> {
+            String username = usernameEditText.getText().toString();
+            String password = passwordEditText.getText().toString();
+            if(!username.equals("") && !password.equals("")){
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    User user = db.userDAO().getUser(username);
+                    if(user == null || !user.getPassword().equals(password)) {
+                        Snackbar.make(v, "Usuario no encontrado o la contraseña es incorrecta", Snackbar.LENGTH_LONG).show();
+                    }
+                    else{
+                        persistenceUser.setUserId(user.getId());
+                        persistenceUser.saveUserId();
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            ((DrawerLocker) getActivity()).setDrawerEnabled(true);
+                            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_favorite);
+                        });
+                    }
+                });
+            }
+            else{
+                Snackbar.make(v, "Rellena todos los campos", Snackbar.LENGTH_LONG).show();
+            }
         });
 
         registerButton = binding.btnRegister;

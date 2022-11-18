@@ -86,15 +86,23 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         persistenceUser.setPreferences(mPrefs);
         persistenceUser.loadUserId();
 
-        Navigation.findNavController(this, R.id.nav_host_fragment_content_main)
-                .addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
-                setDrawerEnabled(false);
-            }
-            if(destination.getId() == R.id.settingsFragment && !PersistenceUser.getInstance().hasValidUserId()){
-                setDrawerEnabled(false);
+        setTheme();
+
+        mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
+            if (key.equals("theme")) {
+                setTheme();
             }
         });
+
+        Navigation.findNavController(this, R.id.nav_host_fragment_content_main)
+                .addOnDestinationChangedListener((controller, destination, arguments) -> {
+                    if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
+                        setDrawerEnabled(false);
+                    }
+                    if(destination.getId() == R.id.settingsFragment && !PersistenceUser.getInstance().hasValidUserId()){
+                        setDrawerEnabled(false);
+                    }
+                });
 
         if(savedInstanceState == null && !persistenceUser.hasValidUserId()){
             NavOptions navOptions = new NavOptions.Builder()
@@ -149,4 +157,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         }
     }
 
+    public void setTheme(){
+        String theme = mPrefs.getString("theme", "Claro");
+        if (theme.equals("Oscuro")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
+    }
 }
