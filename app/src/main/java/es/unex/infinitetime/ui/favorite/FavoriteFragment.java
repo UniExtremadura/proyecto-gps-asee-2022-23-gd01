@@ -29,6 +29,7 @@ import es.unex.infinitetime.persistence.User;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
+
 public class FavoriteFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
@@ -49,8 +50,6 @@ public class FavoriteFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Log.d("Depurando", "onCreateView favorite");
 
         binding = FragmentFavoriteBinding.inflate(inflater, container, false);
 
@@ -73,13 +72,13 @@ public class FavoriteFragment extends Fragment {
         });
 
         mRecyclerView.setAdapter(mAdapter);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         loadItems();
-        Log.d("Depurando", "onResume de favorite");
     }
 
 

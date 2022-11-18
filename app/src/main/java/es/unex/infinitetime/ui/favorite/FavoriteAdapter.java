@@ -34,7 +34,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public interface OnItemClickListener {
         void onItemClick(Task item);
     }
-    
+
 
     public FavoriteAdapter(Context context, OnItemClickListener listener) {
         mContext = context;
