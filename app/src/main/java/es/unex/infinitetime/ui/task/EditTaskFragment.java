@@ -11,9 +11,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.persistence.Task;
+import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class EditTaskFragment extends Fragment {
 
@@ -35,21 +48,76 @@ public class EditTaskFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private int getSpinnerPosition(long effort){
+        for(int i = 0; i < binding.spinnerTaskEffort.getAdapter().getCount(); i++){
+            if(binding.spinnerTaskEffort.getAdapter().getItem(i).equals(String.valueOf(effort))){
+                return i;
+            }
+        }
+        return -1;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskId = getArguments().getLong(ARG_PARAM1);
-        // Recuperar la tarea con el id taskId de la base de datos
-        // y rellenar los campos del formulario con los datos de la tarea
+        taskId = getArguments().getLong(ARG_PARAM1);;
 
-        binding.acceptTaskBtn.setOnClickListener(v -> {
-            // Actualizar la tarea con los datos del formulario
-            Navigation.findNavController(v).navigateUp();
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            Task task = InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(taskId);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                binding.nameTask.setText(task.getName());
+                binding.descriptionTask.setText(task.getDescription());
+                binding.spinnerTaskEffort.setSelection(getSpinnerPosition(task.getEffort()));
+                binding.priorityTask.setText(String.valueOf(task.getPriority()));
+                binding.spinnerTaskState.setSelection(task.getState().ordinal());
+                binding.dateTask.setText(sdf.format(task.getDeadline()));
+
+                binding.cancelTaskBtn.setOnClickListener(v -> {
+                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                });
+                binding.acceptTaskBtn.setOnClickListener(v -> {
+                    task.setId(task.getId());
+                    task.setName(binding.nameTask.getText().toString());
+                    task.setDescription(binding.descriptionTask.getText().toString());
+                    task.setEffort(Long.parseLong(binding.spinnerTaskEffort.getSelectedItem().toString()));
+                    task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
+                    if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
+                        task.setState(TaskState.TODO);
+                    } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
+                        task.setState(TaskState.DOING);
+                    } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
+                        task.setState(TaskState.DONE);
+                    }
+                    String date= binding.dateTask.getText().toString();
+                    Date date1 = null;
+
+                    try {
+                        date1 = new SimpleDateFormat("dd/MM/yyyy").parse(date);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                        Snackbar.make(v, "Error al parsear la fecha. El formato debe ser: dd/MM/yyyy", Snackbar.LENGTH_LONG).show();
+                    }
+                    task.setDeadline(date1);
+
+
+                    AppExecutors.getInstance().diskIO().execute(()->{
+
+                        InfiniteDatabase.getDatabase(getContext()).taskDAO().update(task);
+
+                    });
+
+
+
+                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                });
+
+
+            });
+
         });
 
-        binding.cancelTaskBtn.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigateUp();
-        });
     }
 }

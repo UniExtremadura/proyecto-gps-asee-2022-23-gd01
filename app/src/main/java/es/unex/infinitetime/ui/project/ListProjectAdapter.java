@@ -124,20 +124,10 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
 
             delete.setOnClickListener(v -> {
 
-                User user = new User();
-                user.setId(101);
-
                 if(project.getName()!=null){
                     AppExecutors.getInstance().diskIO().execute(() -> {
-                        if(db.projectDAO().getProject(project.getId()) == null) {
-                            Snackbar.make(v, "El proyecto no existe",Snackbar.LENGTH_SHORT).show();
-                        }
-                        else {
-                            //project.setUserId(persistenceUser.getUserId());
-                            db.projectDAO().delete(project);
-
-                            Snackbar.make(v, "Proyecto -"+ project.getName()+"- borrado", Snackbar.LENGTH_SHORT).show();
-                        }
+                        db.projectDAO().delete(project);
+                        Snackbar.make(v, "Proyecto "+ project.getName()+" borrado", Snackbar.LENGTH_SHORT).show();
                     });
                 }
             });
