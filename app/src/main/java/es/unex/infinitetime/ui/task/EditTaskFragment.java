@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,43 +63,6 @@ public class EditTaskFragment extends Fragment {
 
         taskId = getArguments().getLong(ARG_PARAM1);;
 
-        // Borrar el siguiente código al integrar el caso de uso
-        Task insertTask = new Task();
-        insertTask.setId(taskId);
-        insertTask.setName("Task 1");
-        insertTask.setEffort(5);
-        insertTask.setPriority(123);
-        insertTask.setDescription("Description 1");
-        insertTask.setDeadline(new Date());
-        insertTask.setProjectId(4003);
-        insertTask.setState(TaskState.DOING);
-        insertTask.setUserId(PersistenceUser.getInstance().getUserId());
-
-        User user = new User();
-        user.setId(PersistenceUser.getInstance().getUserId());
-        user.setUsername("username1234");
-        user.setEmail("hola@gmail.com");
-        user.setPassword("1234");
-
-        Project project = new Project();
-        project.setId(4003);
-        project.setName("Project 1");
-        project.setDescription("Description 1");
-        project.setUserId(user.getId());
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(user.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(user);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(project.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).projectDAO().insert(project);
-            }
-            if(InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(taskId) == null){
-                InfiniteDatabase.getDatabase(getContext()).taskDAO().insert(insertTask);
-            }
-        });
-        // Borrar el código anterior cuando se realice la integración
-
         AppExecutors.getInstance().diskIO().execute(() -> {
             Task task = InfiniteDatabase.getDatabase(getContext()).taskDAO().getTask(taskId);
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
@@ -117,9 +82,15 @@ public class EditTaskFragment extends Fragment {
                     task.setId(task.getId());
                     task.setName(binding.nameTask.getText().toString());
                     task.setDescription(binding.descriptionTask.getText().toString());
-                    task.setEffort(binding.spinnerTaskEffort.getSelectedItemPosition());
+                    task.setEffort(Long.parseLong(binding.spinnerTaskEffort.getSelectedItem().toString()));
                     task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
-                    //task.setState(binding.spinnerTaskState.getSelectedItemPosition());
+                    if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
+                        task.setState(TaskState.TODO);
+                    } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
+                        task.setState(TaskState.DOING);
+                    } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
+                        task.setState(TaskState.DONE);
+                    }
                     String date= binding.dateTask.getText().toString();
                     Date date1 = null;
 
@@ -127,6 +98,7 @@ public class EditTaskFragment extends Fragment {
                         date1 = new SimpleDateFormat("dd/MM/yyyy").parse(date);
                     } catch (ParseException e) {
                         e.printStackTrace();
+                        Snackbar.make(v, "Error al parsear la fecha. El formato debe ser: dd/MM/yyyy", Snackbar.LENGTH_LONG).show();
                     }
                     task.setDeadline(date1);
 
