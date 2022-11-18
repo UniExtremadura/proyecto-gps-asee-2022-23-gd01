@@ -1,5 +1,7 @@
 package es.unex.infinitetime.api;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -9,13 +11,13 @@ import retrofit2.http.Path;
 
 public interface UserRemoteDAO {
 
-    @GET("tab/users/id/{id}")
-    public Call<UserRemote> getUser(@Path("id") String id);
+    @GET("tabs/users/id/{id}")
+    public Call<List<UserRemote>> getUser(@Path("id") String id);
 
-    @POST("tab/users")
-    public Call<UserRemote> insertUser(@Body UserRemote user);
+    @POST("tabs/users")
+    public Call<List<UserRemote>> insertUser(@Body UserRemote user);
 
-    @DELETE("tab/users/id/{id}")
-    public Call<UserRemote> deleteUser(@Path("id") String id);
+    @DELETE("tabs/users/id/{id}")
+    public Call<List<UserRemote>> deleteUser(@Path("id") String id);
 
 }

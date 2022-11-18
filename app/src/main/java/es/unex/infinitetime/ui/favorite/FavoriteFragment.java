@@ -13,13 +13,20 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentFavoriteBinding;
 import es.unex.infinitetime.datosEjemplo.ExampleData;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.Project;
 import es.unex.infinitetime.persistence.Task;
-
+import es.unex.infinitetime.persistence.TaskState;
+import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class FavoriteFragment extends Fragment {
@@ -72,21 +79,21 @@ public class FavoriteFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (mAdapter.getItemCount() == 0)
-            loadItems();
-        Log.d("Depurando", "onResume de favorite");
+        loadItems();
     }
 
 
-    // Load stored ToDoItems
     private void loadItems() {
-        ExampleData ed = new ExampleData();
-        List<Task> mItems = ed.getTasksList();
-        // Conseguir el identificador del usuario actual
-        // Obtener todas las tareas favoritas de ese usuario
-        Log.d("Depurando", "load de favorite");
+        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
 
-        mAdapter.load(mItems);
+        AppExecutors.getInstance().diskIO().execute(()-> {
+            List<Task> m = db.userDAO().getFavoriteTasks(PersistenceUser.getInstance().getUserId());
+            AppExecutors.getInstance().mainThread().execute(() -> {
+                mAdapter.load(m);
+            });
+        });
+
+
     }
 
 
