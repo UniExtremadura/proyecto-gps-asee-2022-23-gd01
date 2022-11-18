@@ -73,10 +73,19 @@ public class EditTaskFragment extends Fragment {
                 binding.spinnerTaskEffort.setSelection(getSpinnerPosition(task.getEffort()));
                 binding.priorityTask.setText(String.valueOf(task.getPriority()));
                 binding.spinnerTaskState.setSelection(task.getState().ordinal());
-                binding.dateTask.setText(sdf.format(task.getDeadline()));
+
+
+                try {
+                    binding.dateTask.setText(sdf.format(task.getDeadline()));
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    Snackbar.make(binding.getRoot(), "Fecha introducida anteriormente no valida", Snackbar.LENGTH_LONG).show();
+                }
+
 
                 binding.cancelTaskBtn.setOnClickListener(v -> {
-                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                    Navigation.findNavController(v).navigateUp();
                 });
                 binding.acceptTaskBtn.setOnClickListener(v -> {
                     task.setId(task.getId());
@@ -96,7 +105,7 @@ public class EditTaskFragment extends Fragment {
 
                     try {
                         date1 = new SimpleDateFormat("dd/MM/yyyy").parse(date);
-                    } catch (ParseException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         Snackbar.make(v, "Error al parsear la fecha. El formato debe ser: dd/MM/yyyy", Snackbar.LENGTH_LONG).show();
                     }
@@ -108,10 +117,7 @@ public class EditTaskFragment extends Fragment {
                         InfiniteDatabase.getDatabase(getContext()).taskDAO().update(task);
 
                     });
-
-
-
-                    Navigation.findNavController(v).navigate(R.id.action_editTaskFragment_to_listTasksFragment);
+                    Navigation.findNavController(v).navigateUp();
                 });
 
 
