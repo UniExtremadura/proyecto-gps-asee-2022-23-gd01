@@ -13,11 +13,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.DrawerLocker;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentRegisterBinding;
+import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.persistence.User;
 
 
 public class RegisterFragment extends Fragment {
@@ -47,7 +51,6 @@ public class RegisterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Log.d("Debug", "onViewCreated RegisterFragment");
-        ((DrawerLocker) getActivity()).setDrawerEnabled(false);
 
         Button btnRegister = binding.btnRegister;
 
@@ -57,9 +60,35 @@ public class RegisterFragment extends Fragment {
 
         tvUsername.setText(getArguments().getString("username"));
 
+        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
+
         btnRegister.setOnClickListener(v1 -> {
-            // Crear la lógica del registro
-            Navigation.findNavController(v1).navigate(R.id.action_registerFragment_to_loginFragment);
+
+            User user = new User();
+
+            user.setUsername(tvUsername.getText().toString());
+            user.setPassword(tvPassword.getText().toString());
+            user.setEmail(tvEmail.getText().toString());
+
+            if(!user.getUsername().equals("") && !user.getPassword().equals("") && !user.getEmail().equals("")) {
+                AppExecutors.getInstance().diskIO().execute(() -> {
+                    if(db.userDAO().getUser(user.getUsername()) != null) {
+                        Snackbar.make(v1, "El usuario ya existe", Snackbar.LENGTH_LONG).show();
+                    }
+                    else {
+                        db.userDAO().insert(user);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("username", user.getUsername());
+                        bundle.putString("password", user.getPassword());
+                        AppExecutors.getInstance().mainThread().execute(() -> Navigation
+                                .findNavController(v1)
+                                .navigate(R.id.action_registerFragment_to_loginFragment, bundle));
+                    }
+                });
+            }
+            else{
+                Snackbar.make(v1, "Rellena todos los campos", Snackbar.LENGTH_LONG).show();
+            }
         });
     }
 }
