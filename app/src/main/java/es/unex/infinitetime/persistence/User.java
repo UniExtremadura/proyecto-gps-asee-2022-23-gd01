@@ -57,6 +57,7 @@ public class User {
         User user = new User();
         user.setId(Long.parseLong(userRemote.getId()));
         user.setUsername(userRemote.getUsername());
+        user.setPassword(userRemote.getPassword());
         user.setEmail(userRemote.getEmail());
         return user;
     }
