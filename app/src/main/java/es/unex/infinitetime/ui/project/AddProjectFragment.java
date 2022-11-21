@@ -54,7 +54,7 @@ public class AddProjectFragment extends Fragment {
         confirmNewProjectBtn.setOnClickListener(v -> {
             Project project = new Project();
             String project_name = binding.ProjectNameEdit.getText().toString();
-            String project_description = binding.ProjectDescription.getText().toString();
+            String project_description = binding.ProjectDescriptionEdit.getText().toString();
 
             if(!project_name.equals("")){
                 AppExecutors.getInstance().diskIO().execute(() -> {
