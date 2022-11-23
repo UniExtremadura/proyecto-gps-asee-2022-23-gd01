@@ -30,6 +30,7 @@ public class DownloadFromAPI implements Runnable{
     private final ProjectRemoteDAO projectRemoteDAO;
     private final TaskRemoteDAO taskRemoteDAO;
     private final FavoriteRemoteDAO favoriteRemoteDAO;
+    private final SharedProjectRemoteDAO sharedProjectRemoteDAO;
 
     private final UserDAO userDAO;
     private final ProjectDAO projectDAO;
@@ -47,6 +48,7 @@ public class DownloadFromAPI implements Runnable{
         projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
         taskRemoteDAO = retrofit.create(TaskRemoteDAO.class);
         favoriteRemoteDAO = retrofit.create(FavoriteRemoteDAO.class);
+        sharedProjectRemoteDAO = retrofit.create(SharedProjectRemoteDAO.class);
 
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
@@ -58,32 +60,53 @@ public class DownloadFromAPI implements Runnable{
     @Override
     public void run() {
         try {
-            User user = userDAO.getUser(userId);
-            UserRemote userRemote = userRemoteDAO.getUser(String.valueOf(user.getId())).execute().body().get(0);
-            if(userRemote == null){
-                Log.d("DownloadFromAPI", "User not found");
-                return;
-            }
-            User userUpdate = User.userFromRemote(userRemote);
-            userDAO.update(userUpdate);
+            List<UserRemote> usersRemote = userRemoteDAO.getUsers().execute().body();
+            List<User> users = usersRemote.stream().map(
+                    User::userFromRemote
+            ).collect(Collectors.toList());
 
-            List<ProjectRemote> projectsRemote = projectRemoteDAO.getProjectsByUser(userRemote.getId()).execute().body();
-            assert projectsRemote != null;
-            List<Project> projects = projectsRemote.stream().map(Project::projectFromRemote).collect(Collectors.toList());
-            userDAO.deleteProjectsCreated(userUpdate.getId());
+            userDAO.deleteAllUsers();
+            users.forEach(userDAO::insert);
+
+            List<ProjectRemote> projectsRemote = projectRemoteDAO.getProjects().execute().body();
+            List<Project> projects = projectsRemote.stream().map(
+                    Project::projectFromRemote
+            ).collect(Collectors.toList());
+
+            projectDAO.deleteAllProjects();
             projects.forEach(projectDAO::insert);
 
-            List<TaskRemote> tasksRemote = taskRemoteDAO.getTasksByUser(userRemote.getId()).execute().body();
-            assert tasksRemote != null;
-            List<Task> tasks = tasksRemote.stream().map(Task::fromRemote).collect(Collectors.toList());
-            userDAO.deleteTasksCreated(userUpdate.getId());
+            List<TaskRemote> tasksRemote = taskRemoteDAO.getTasks().execute().body();
+            List<Task> tasks = tasksRemote.stream().map(
+                    Task::fromRemote
+            ).collect(Collectors.toList());
+
+            taskDAO.deleteAllTasks();
             tasks.forEach(taskDAO::insert);
 
-            List<FavoriteRemote> favoritesRemote = favoriteRemoteDAO.getFavorites(userRemote.getId()).execute().body();
-            assert favoritesRemote != null;
-            List<Favorite> favorites = favoritesRemote.stream().map(Favorite::fromRemote).collect(Collectors.toList());
-            userDAO.deleteFavorites(userUpdate.getId());
+            List<FavoriteRemote> favoritesRemote = favoriteRemoteDAO.getFavorites().execute().body();
+            List<Favorite> favorites = favoritesRemote.stream().map(
+                    Favorite::fromRemote
+            ).collect(Collectors.toList());
+
+            userDAO.deleteAllFavorites();
             favorites.forEach(userDAO::insertFavorite);
+
+            List<SharedProjectRemote> sharedProjectsRemote = sharedProjectRemoteDAO.getSharedProjects().execute().body();
+            List<SharedProject> sharedProjects = sharedProjectsRemote.stream().map(
+                    SharedProject::fromRemote
+            ).collect(Collectors.toList());
+
+            userDAO.deleteAllSharedProjects();
+            sharedProjects.forEach(userDAO::insertSharedProject);
+
+
+
+
+
+            Log.d("DownloadFromAPI", "Downloaded from API");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         catch (Exception e){
             e.printStackTrace();

@@ -6,18 +6,19 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
 import retrofit2.http.GET;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface UserRemoteDAO {
 
-    @GET("tabs/users/id/{id}")
-    public Call<List<UserRemote>> getUser(@Path("id") String id);
+    @GET("tabs/users")
+    Call<List<UserRemote>> getUsers();
 
     @POST("tabs/users")
-    public Call<List<UserRemote>> insertUser(@Body UserRemote user);
+    Call<List<UserRemote>> insertUsers(@Body List<UserRemote> users);
 
-    @DELETE("tabs/users/id/{id}")
-    public Call<List<UserRemote>> deleteUser(@Path("id") String id);
+    @DELETE("tabs/users")
+    public Call<List<UserRemote>> deleteUsers();
 
 }

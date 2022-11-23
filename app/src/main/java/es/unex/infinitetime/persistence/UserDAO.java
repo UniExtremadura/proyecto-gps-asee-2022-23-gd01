@@ -71,5 +71,12 @@ public interface UserDAO {
     @Delete
     void delete(User user);
 
+    @Query("DELETE FROM user")
+    void deleteAllUsers();
 
+    @Query("DELETE FROM favorite")
+    void deleteAllFavorites();
+
+    @Query("DELETE FROM shared_project")
+    void deleteAllSharedProjects();
 }

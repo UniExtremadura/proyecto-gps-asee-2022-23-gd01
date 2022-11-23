@@ -15,7 +15,13 @@ public interface ProjectDAO {
     Project getProject(long projectId);
 
     @Query("SELECT * FROM project ")
-    List<Project> getAllProject();
+    List<Project> getAllProjects();
+
+    @Query("SELECT * FROM shared_project")
+    List<SharedProject> getAllSharedProjects();
+
+    @Query("DELETE FROM shared_project")
+    void deleteAllSharedProjects();
 
     @Query("SELECT * FROM task WHERE project_id = :projectId")
     List<Task> getTasks(long projectId);
@@ -37,4 +43,7 @@ public interface ProjectDAO {
 
     @Delete
     void delete(Project project);
+
+    @Query("DELETE FROM project")
+    void deleteAllProjects();
 }

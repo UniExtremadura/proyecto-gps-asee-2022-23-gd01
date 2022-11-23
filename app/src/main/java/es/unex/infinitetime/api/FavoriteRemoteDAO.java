@@ -11,13 +11,13 @@ import retrofit2.http.Path;
 
 public interface FavoriteRemoteDAO {
 
-        @GET("tabs/favorites/user_id/{user_id}")
-        Call<List<FavoriteRemote>> getFavorites(@Path("user_id") String userId);
+        @GET("tabs/favorite")
+        Call<List<FavoriteRemote>> getFavorites();
 
         @POST("tabs/favorites")
         Call<List<FavoriteRemote>> insertFavorites(@Body List<FavoriteRemote> favorites);
 
-        @DELETE("tabs/favorites/user_id/{user_id}")
-        Call<List<FavoriteRemote>> deleteFavorites(@Path("user_id") String userId);
+        @DELETE("tabs/favorite")
+        Call<List<FavoriteRemote>> deleteFavorites();
 
 }

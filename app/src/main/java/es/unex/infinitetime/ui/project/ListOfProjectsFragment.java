@@ -21,10 +21,8 @@ import java.util.List;
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentListOfProjectsBinding;
-import es.unex.infinitetime.datosEjemplo.ExampleData;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.User;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 import es.unex.infinitetime.ui.tabs.ListTasksFragment;
 

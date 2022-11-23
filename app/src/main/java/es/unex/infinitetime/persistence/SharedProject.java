@@ -8,6 +8,8 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 
+import es.unex.infinitetime.api.SharedProjectRemote;
+
 @Entity(tableName = "shared_project", primaryKeys = {"project_id","user_id"},
     foreignKeys = {
                 @ForeignKey(entity = Project.class,
@@ -40,5 +42,13 @@ public class SharedProject {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    @Ignore
+    public static SharedProject fromRemote(SharedProjectRemote sharedProjectRemote) {
+        SharedProject sharedProject = new SharedProject();
+        sharedProject.setProjectId(Long.parseLong(sharedProjectRemote.getProjectId()));
+        sharedProject.setUserId(Long.parseLong(sharedProjectRemote.getUserId()));
+        return sharedProject;
     }
 }

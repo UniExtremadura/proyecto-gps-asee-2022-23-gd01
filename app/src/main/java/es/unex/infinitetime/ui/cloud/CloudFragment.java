@@ -35,18 +35,6 @@ public class CloudFragment extends Fragment {
         Button btnSyncFromCloud = binding.btnSyncFromCloud;
         Button btnSyncToCloud = binding.btnSyncToCloud;
 
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            User user = new User();
-            user.setId(PersistenceUser.getInstance().getUserId());
-            user.setUsername("alejandro");
-            user.setEmail("a12345678@gmail.com");
-            user.setPassword("1234");
-            if(InfiniteDatabase.getDatabase(getContext()).userDAO().getUser(user.getId()) == null){
-                InfiniteDatabase.getDatabase(getContext()).userDAO().insert(user);
-            }
-        });
-        // Borrar las anteriores líneas de código
-
         btnSyncFromCloud.setOnClickListener(v -> {
             AppExecutors.getInstance().networkIO().execute(new DownloadFromAPI());
             Snackbar.make(root, "Obteniendo los datos de la nube...", Snackbar.LENGTH_LONG).show();

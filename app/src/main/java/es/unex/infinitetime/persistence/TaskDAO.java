@@ -11,10 +11,10 @@ import java.util.List;
 @Dao
 public interface TaskDAO {
 
-    /*
-    @Query("SELECT * FROM task ")
+
+    @Query("SELECT * FROM task")
     List<Task> getAllTasks();
-     */
+
     @Query("SELECT COUNT (*) FROM task WHERE user_id=:userId AND state=:state")
     int getTasksNum(long userId, int state);
 
@@ -31,6 +31,9 @@ public interface TaskDAO {
     @Query("DELETE FROM favorite WHERE user_id = :userId AND task_id = :taskId")
     void removeFavorite(long userId, long taskId);
 
+    @Query("SELECT * FROM favorite")
+    List<Favorite> getAllFavorites();
+
     @Insert
     void insert(Task task);
 
@@ -39,4 +42,7 @@ public interface TaskDAO {
 
     @Delete
     void delete(Task task);
+
+    @Query("DELETE FROM task")
+    void deleteAllTasks();
 }
