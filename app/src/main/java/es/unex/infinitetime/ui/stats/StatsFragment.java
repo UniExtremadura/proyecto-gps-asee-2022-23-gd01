@@ -15,16 +15,10 @@ import org.eazegraph.lib.charts.PieChart;
 import org.eazegraph.lib.models.PieModel;
 
 
-import java.util.Date;
-
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentStatsBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 

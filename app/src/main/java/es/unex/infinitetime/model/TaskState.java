@@ -1,4 +1,4 @@
-package es.unex.infinitetime.persistence;
+package es.unex.infinitetime.model;
 
 public enum TaskState {
     TODO,

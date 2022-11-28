@@ -7,8 +7,8 @@ import com.google.gson.annotations.SerializedName;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskStateConverter;
+import es.unex.infinitetime.model.Task;
+import es.unex.infinitetime.model.TaskStateConverter;
 
 public class TaskRemote {
 

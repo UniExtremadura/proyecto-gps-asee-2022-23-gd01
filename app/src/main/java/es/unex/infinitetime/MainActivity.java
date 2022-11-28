@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import es.unex.infinitetime.databinding.ActivityMainBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.repository.Repository;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class MainActivity extends AppCompatActivity implements DrawerLocker {
@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         super.onPostCreate(savedInstanceState);
         toggle.syncState();
     }
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,15 +76,12 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        //Se obtiene la instancia de la base de datos al lanzar la aplicacion
-        //Se hace al lanzar la aplicacion porque es una operacion costosa
-        InfiniteDatabase.getDatabase(this);
+        if (PersistenceUser.getInstance().getUserId() == -1) {
+            navController.navigate(R.id.loginFragment);
+        }
 
-        //Las operaciones de la BD se hacen en otro hilo y se llaman con
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(this);
-        //luego con la instancia de la base de datos se llama a los metodos de los DAO
-        //db.claseDao.metodoDao();
-        //ejemplo -> db.userDAO().getUser("Usuario1");
+        Repository.getInstance(this).initiate();
+
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         persistenceUser.setPreferences(mPrefs);
         persistenceUser.loadUserId();
@@ -99,9 +99,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
                     if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
                         setDrawerEnabled(false);
                     }
-                    if(destination.getId() == R.id.settingsFragment && !PersistenceUser.getInstance().hasValidUserId()){
-                        setDrawerEnabled(false);
-                    }
+                    else setDrawerEnabled(destination.getId() != R.id.settingsFragment || PersistenceUser.getInstance().hasValidUserId());
                 });
 
         if(savedInstanceState == null && !persistenceUser.hasValidUserId()){
@@ -139,8 +137,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
     @Override
     protected void onDestroy() {
-        //Se cierra la base de datos al cerrar la aplicacion
-        InfiniteDatabase.getDatabase(this).close();
+        Repository.getInstance(null).finish();
         super.onDestroy();
         binding = null;
     }

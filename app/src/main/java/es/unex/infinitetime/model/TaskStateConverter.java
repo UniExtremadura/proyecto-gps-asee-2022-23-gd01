@@ -1,4 +1,4 @@
-package es.unex.infinitetime.persistence;
+package es.unex.infinitetime.model;
 
 
 import androidx.room.TypeConverter;

@@ -13,12 +13,9 @@ import android.widget.Button;
 import com.google.android.material.snackbar.Snackbar;
 
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.api.DownloadFromAPI;
-import es.unex.infinitetime.api.UploadToAPI;
+import es.unex.infinitetime.repository.DownloadFromAPI;
+import es.unex.infinitetime.repository.UploadToAPI;
 import es.unex.infinitetime.databinding.FragmentCloudBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.User;
-import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class CloudFragment extends Fragment {
@@ -36,12 +33,10 @@ public class CloudFragment extends Fragment {
         Button btnSyncToCloud = binding.btnSyncToCloud;
 
         btnSyncFromCloud.setOnClickListener(v -> {
-            AppExecutors.getInstance().networkIO().execute(new DownloadFromAPI());
             Snackbar.make(root, "Obteniendo los datos de la nube...", Snackbar.LENGTH_LONG).show();
         });
 
         btnSyncToCloud.setOnClickListener(v -> {
-            AppExecutors.getInstance().networkIO().execute(new UploadToAPI());
             Snackbar.make(root, "Subiendo los datos a la nube...", Snackbar.LENGTH_LONG).show();
         });
 

@@ -22,8 +22,8 @@ import es.unex.infinitetime.DrawerLocker;
 import es.unex.infinitetime.databinding.FragmentLoginBinding;
 
 import es.unex.infinitetime.R;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.User;
 
 public class LoginFragment extends Fragment {
 

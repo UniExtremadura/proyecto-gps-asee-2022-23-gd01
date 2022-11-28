@@ -4,7 +4,7 @@ package es.unex.infinitetime.api;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.model.Project;
 
 
 public class ProjectRemote {

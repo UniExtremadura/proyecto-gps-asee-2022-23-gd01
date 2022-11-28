@@ -16,10 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Task;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {

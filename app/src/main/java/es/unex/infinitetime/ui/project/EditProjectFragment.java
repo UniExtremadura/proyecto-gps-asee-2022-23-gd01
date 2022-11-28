@@ -7,21 +7,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import es.unex.infinitetime.AppExecutors;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
 
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;

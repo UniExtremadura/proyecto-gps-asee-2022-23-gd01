@@ -1,37 +1,34 @@
 package es.unex.infinitetime.ui.task;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
-import es.unex.infinitetime.persistence.DateConverter;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Task;
+import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.viewmodel.ProjectViewModel;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
+import es.unex.infinitetime.viewmodel.UserViewModel;
 
 
 public class AddTaskFragment extends Fragment {
 
     private FragmentTaskBinding binding;
-    private Long mProjectId;
+    private TaskViewModel taskViewModel;
+    private UserViewModel userViewModel;
 
     public AddTaskFragment() {
 
@@ -45,6 +42,8 @@ public class AddTaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        taskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         binding = FragmentTaskBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -55,7 +54,6 @@ public class AddTaskFragment extends Fragment {
 
         binding.acceptTaskBtn.setOnClickListener(v -> {
 
-            InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
             Task task = new Task();
             task.setName(binding.nameTask.getText().toString());
             task.setDescription(binding.descriptionTask.getText().toString());
@@ -78,15 +76,9 @@ public class AddTaskFragment extends Fragment {
 
             task.setEffort(Long.parseLong(binding.spinnerTaskEffort.getSelectedItem().toString()));
 
-            PersistenceUser persistenceUser = PersistenceUser.getInstance();
-            task.setUserId(persistenceUser.getUserId());
-
-            task.setProjectId(getArguments().getLong("project_id"));
-
-
-            AppExecutors.getInstance().diskIO().execute(() -> {
-                db.taskDAO().insert(task);
-            });
+            task.setUserId(userViewModel.getUserId());
+            task.setProjectId(taskViewModel.getProjectId());
+            taskViewModel.insertTask(task);
 
             Navigation.findNavController(v).navigateUp();
         });
