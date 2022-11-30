@@ -1,18 +1,17 @@
 package es.unex.infinitetime.api;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import es.unex.infinitetime.persistence.Favorite;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.ProjectDAO;
-import es.unex.infinitetime.persistence.SharedProject;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskDAO;
-import es.unex.infinitetime.persistence.User;
-import es.unex.infinitetime.persistence.UserDAO;
+import es.unex.infinitetime.model.Favorite;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
+import es.unex.infinitetime.model.ProjectDAO;
+import es.unex.infinitetime.model.SharedProject;
+import es.unex.infinitetime.model.Task;
+import es.unex.infinitetime.model.TaskDAO;
+import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.model.UserDAO;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -31,14 +30,7 @@ public class UploadToAPI implements Runnable {
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    private final long userId;
-
-
-    public UploadToAPI() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+    public UploadToAPI(Retrofit retrofit) {
 
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
         projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
@@ -49,14 +41,12 @@ public class UploadToAPI implements Runnable {
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
-
-        userId = PersistenceUser.getInstance().getUserId();
     }
 
     @Override
     public void run() {
         try {
-            List<User> users = userDAO.getAllUsers();
+            List<User> users = userDAO.getAllUsers().getValue();
             userRemoteDAO.deleteUsers().execute();
             List<UserRemote> usersRemote = users.stream().map(
                     UserRemote::fromUser

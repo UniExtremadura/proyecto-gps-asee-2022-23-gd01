@@ -21,7 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import es.unex.infinitetime.databinding.ActivityMainBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
+import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class MainActivity extends AppCompatActivity implements DrawerLocker {

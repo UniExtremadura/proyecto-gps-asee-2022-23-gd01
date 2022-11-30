@@ -1,7 +1,6 @@
 package es.unex.infinitetime.ui.project;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,8 +20,8 @@ import java.util.List;
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentListOfProjectsBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 import es.unex.infinitetime.ui.tabs.ListTasksFragment;
 
@@ -94,9 +93,6 @@ public class ListOfProjectsFragment extends Fragment {
         List<Project> mItems = new ArrayList<>();
 
         AppExecutors.getInstance().diskIO().execute(() -> {
-
-            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsCreated(user_id));
-            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsShared(user_id));
 
             AppExecutors.getInstance().mainThread().execute(() -> {
                 mAdapter.load(mItems);

@@ -7,7 +7,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentUserBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class UserFragment extends Fragment {

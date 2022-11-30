@@ -16,8 +16,8 @@ import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentSharedBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.User;
 
 
 public class SharedFragment extends Fragment {

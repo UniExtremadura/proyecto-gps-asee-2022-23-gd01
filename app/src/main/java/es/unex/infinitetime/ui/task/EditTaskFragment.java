@@ -13,20 +13,14 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.R;
-import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.persistence.User;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Task;
+import es.unex.infinitetime.model.TaskState;
 
 public class EditTaskFragment extends Fragment {
 

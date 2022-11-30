@@ -1,4 +1,4 @@
-package es.unex.infinitetime.persistence;
+package es.unex.infinitetime.model;
 
 import static androidx.room.ForeignKey.CASCADE;
 

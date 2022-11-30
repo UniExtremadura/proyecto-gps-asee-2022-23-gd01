@@ -16,9 +16,6 @@ import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.api.DownloadFromAPI;
 import es.unex.infinitetime.api.UploadToAPI;
 import es.unex.infinitetime.databinding.FragmentCloudBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.User;
-import es.unex.infinitetime.ui.login.PersistenceUser;
 
 
 public class CloudFragment extends Fragment {

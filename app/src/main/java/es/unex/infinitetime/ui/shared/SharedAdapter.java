@@ -14,11 +14,10 @@ import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentItemSharedBinding;
-import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.SharedProject;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
+import es.unex.infinitetime.model.SharedProject;
+import es.unex.infinitetime.model.User;
 
 public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder> {
     private List<User> mItems = new ArrayList<>();

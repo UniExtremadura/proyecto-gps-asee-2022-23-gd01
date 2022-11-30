@@ -3,7 +3,6 @@ package es.unex.infinitetime.ui.tabs;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -19,8 +18,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 import es.unex.infinitetime.ui.project.ListProjectAdapter;
 import es.unex.infinitetime.R;
-import es.unex.infinitetime.persistence.TaskState;
-import es.unex.infinitetime.ui.stats.StatsFragment;
 import es.unex.infinitetime.databinding.FragmentListTasksBinding;
 
 

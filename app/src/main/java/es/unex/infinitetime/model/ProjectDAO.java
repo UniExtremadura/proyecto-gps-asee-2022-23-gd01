@@ -1,5 +1,6 @@
-package es.unex.infinitetime.persistence;
+package es.unex.infinitetime.model;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -12,7 +13,7 @@ import java.util.List;
 public interface ProjectDAO {
 
     @Query("SELECT * FROM project WHERE id = :projectId")
-    Project getProject(long projectId);
+    LiveData<Project> getProject(long projectId);
 
     @Query("SELECT * FROM project ")
     List<Project> getAllProjects();
@@ -24,7 +25,7 @@ public interface ProjectDAO {
     void deleteAllSharedProjects();
 
     @Query("SELECT * FROM task WHERE project_id = :projectId")
-    List<Task> getTasks(long projectId);
+    LiveData<List<Task>> getTasks(long projectId);
 
     @Query("INSERT INTO shared_project (project_id, user_id) VALUES (:projectId, :userId)")
     void shareProject(long projectId, long userId);
@@ -33,7 +34,7 @@ public interface ProjectDAO {
     void stopSharingProject(long projectId, long userId);
 
     @Query("SELECT * FROM shared_project WHERE project_id = :projectId and user_id = :userId")
-    SharedProject getSharedProject(long projectId, long userId);
+    SharedProject getSharedProject(long userId, long projectId);
 
     @Insert
     void insert(Project project);

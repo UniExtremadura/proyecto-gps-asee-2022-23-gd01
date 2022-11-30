@@ -1,8 +1,6 @@
 package es.unex.infinitetime.ui.project;
 
 
-import static java.security.AccessController.getContext;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -23,9 +21,8 @@ import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 //import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
 import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.User;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
 
 public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.ViewHolder> {
     private final OnItemClickListener listener;

@@ -2,29 +2,24 @@ package es.unex.infinitetime.api;
 
 import android.util.Log;
 
-import com.google.android.material.snackbar.Snackbar;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.persistence.Favorite;
-import es.unex.infinitetime.persistence.InfiniteDatabase;
-import es.unex.infinitetime.persistence.Project;
-import es.unex.infinitetime.persistence.ProjectDAO;
-import es.unex.infinitetime.persistence.SharedProject;
-import es.unex.infinitetime.persistence.Task;
-import es.unex.infinitetime.persistence.TaskDAO;
-import es.unex.infinitetime.persistence.User;
-import es.unex.infinitetime.persistence.UserDAO;
+import es.unex.infinitetime.model.Favorite;
+import es.unex.infinitetime.model.InfiniteDatabase;
+import es.unex.infinitetime.model.Project;
+import es.unex.infinitetime.model.ProjectDAO;
+import es.unex.infinitetime.model.SharedProject;
+import es.unex.infinitetime.model.Task;
+import es.unex.infinitetime.model.TaskDAO;
+import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.model.UserDAO;
 import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class DownloadFromAPI implements Runnable{
-
-    public static final String BASE_URL = "https://sheet.best/api/sheets/421e4602-4291-4ed8-aed3-83969a14ea31/";
 
     private final UserRemoteDAO userRemoteDAO;
     private final ProjectRemoteDAO projectRemoteDAO;
@@ -36,13 +31,7 @@ public class DownloadFromAPI implements Runnable{
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    private long userId;
-
-    public DownloadFromAPI() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+    public DownloadFromAPI(Retrofit retrofit) {
 
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
         projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
@@ -53,8 +42,6 @@ public class DownloadFromAPI implements Runnable{
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
-
-        userId = PersistenceUser.getInstance().getUserId();
     }
 
     @Override
@@ -100,15 +87,8 @@ public class DownloadFromAPI implements Runnable{
             userDAO.deleteAllSharedProjects();
             sharedProjects.forEach(userDAO::insertSharedProject);
 
-
-
-
-
             Log.d("DownloadFromAPI", "Downloaded from API");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
