@@ -34,7 +34,7 @@ public interface ProjectDAO {
     void stopSharingProject(long projectId, long userId);
 
     @Query("SELECT * FROM shared_project WHERE project_id = :projectId and user_id = :userId")
-    SharedProject getSharedProject(long projectId, long userId);
+    SharedProject getSharedProject(long userId, long projectId);
 
     @Insert
     void insert(Project project);

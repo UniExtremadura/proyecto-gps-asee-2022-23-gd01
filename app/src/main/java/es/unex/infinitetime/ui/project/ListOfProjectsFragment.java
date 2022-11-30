@@ -94,9 +94,6 @@ public class ListOfProjectsFragment extends Fragment {
 
         AppExecutors.getInstance().diskIO().execute(() -> {
 
-            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsCreated(user_id));
-            mItems.addAll(InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getProjectsShared(user_id));
-
             AppExecutors.getInstance().mainThread().execute(() -> {
                 mAdapter.load(mItems);
             });
