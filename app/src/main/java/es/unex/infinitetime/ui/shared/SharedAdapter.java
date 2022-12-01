@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -18,13 +19,14 @@ import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Project;
 import es.unex.infinitetime.model.SharedProject;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.viewmodel.SharedViewModel;
 
 public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder> {
     private List<User> mItems = new ArrayList<>();
+    private SharedViewModel sharedViewModel;
     Context mContext;
 
     private FragmentItemSharedBinding binding;
-    private long projectId;
 
 
     public interface OnItemClickListener {
@@ -32,9 +34,9 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
     }
 
 
-    public SharedAdapter(Context context, long projectId) {
+    public SharedAdapter(Context context, SharedViewModel sharedViewModel) {
         mContext = context;
-        this.projectId = projectId;
+        this.sharedViewModel = sharedViewModel;
     }
 
 
@@ -43,7 +45,7 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         binding = FragmentItemSharedBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ViewHolder(mContext, binding.getRoot(), projectId);
+        return new ViewHolder(mContext, binding.getRoot(), sharedViewModel);
     }
 
     @Override
@@ -89,56 +91,25 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
 
         private FragmentItemSharedBinding binding;
 
-        private long projectId;
+        private SharedViewModel sharedViewModel;
 
-        public ViewHolder(Context context, View itemView, long projectId) {
+        public ViewHolder(Context context, View itemView, SharedViewModel sharedViewModel) {
             super(itemView);
 
             mContext = context;
             binding = FragmentItemSharedBinding.bind(itemView);
-            this.projectId = projectId;
-
+            this.sharedViewModel = sharedViewModel;
         }
 
         public void bind(final User item) {
 
             binding.textUsernameShared.setText(item.getUsername());
-            binding.sharedCheckBox.setChecked(false);
-
             AppExecutors.getInstance().diskIO().execute(() -> {
-                SharedProject sharedProject = InfiniteDatabase.getDatabase(mContext).projectDAO().getSharedProject(projectId, item.getId());
-                AppExecutors.getInstance().mainThread().execute(() -> {
-                    if (sharedProject != null) {
-                        binding.sharedCheckBox.setChecked(true);
-                    }
+                binding.sharedCheckBox.setChecked(sharedViewModel.isShared(item.getId()));
+                binding.sharedCheckBox.setOnCheckedChangeListener((v, isChecked) -> {
+                    sharedViewModel.switchShared(item.getId());
                 });
             });
-
-            binding.sharedCheckBox.setOnCheckedChangeListener((v, isChecked) -> {
-                if (isChecked) {
-                    AppExecutors.getInstance().diskIO().execute(() -> {
-                        Project project = new Project();
-                        project.setId(projectId);
-                        project.setDescription("Prueba");
-                        project.setName("Prueba");
-                        project.setUserId(item.getId());
-                        if(InfiniteDatabase.getDatabase(mContext).projectDAO().getProject(projectId) == null) {
-                            InfiniteDatabase.getDatabase(mContext).projectDAO().insert(project);
-                        }
-                        // Borrar las líneas anteriores al hacer la integración
-                        if(InfiniteDatabase.getDatabase(mContext).projectDAO().getSharedProject(projectId, item.getId()) == null) {
-                            InfiniteDatabase.getDatabase(mContext).projectDAO().shareProject(projectId, item.getId());
-                        }
-                    });
-                }
-                else {
-                    AppExecutors.getInstance().diskIO().execute(() -> {
-                        InfiniteDatabase.getDatabase(mContext).projectDAO().stopSharingProject(projectId, item.getId());
-                    });
-                }
-            });
-
-
         }
 
     }

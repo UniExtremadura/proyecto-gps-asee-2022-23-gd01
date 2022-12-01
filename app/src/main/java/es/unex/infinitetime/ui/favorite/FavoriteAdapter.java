@@ -19,7 +19,8 @@ import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -28,6 +29,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     Context mContext;
 
     private FragmentItemTaskBinding binding;
+    private TaskViewModel taskViewModel;
 
 
     public interface OnItemClickListener {
@@ -35,9 +37,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     }
 
 
-    public FavoriteAdapter(Context context, OnItemClickListener listener) {
+    public FavoriteAdapter(Context context, OnItemClickListener listener, TaskViewModel taskViewModel) {
         mContext = context;
         this.listener = listener;
+        this.taskViewModel = taskViewModel;
     }
 
 
@@ -46,7 +49,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         binding = FragmentItemTaskBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-        return new ViewHolder(mContext,binding.getRoot());
+        return new ViewHolder(mContext,binding.getRoot(),taskViewModel);
     }
 
     @Override
@@ -79,7 +82,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         mItems.clear();
         mItems = items;
         notifyDataSetChanged();
-        Log.d("Depurando", "load Adapter stats");
 
     }
 
@@ -90,12 +92,14 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         private Context mContext;
 
         private FragmentItemTaskBinding binding;
+        private TaskViewModel taskViewModel;
 
-        public ViewHolder(Context context, View itemView) {
+        public ViewHolder(Context context, View itemView, TaskViewModel taskViewModel) {
             super(itemView);
 
             mContext = context;
             binding = FragmentItemTaskBinding.bind(itemView);
+            this.taskViewModel = taskViewModel;
 
         }
 
@@ -103,42 +107,20 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
             binding.nameTaskItem.setText(task.getName());
 
-            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
-            PersistenceUser user = PersistenceUser.getInstance();
-
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
             AppExecutors.getInstance().diskIO().execute(() -> {
-                boolean isFavorite;
-                if(db.userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), task.getId()) == null){
-                    isFavorite = false;
-                }
-                else{
-                    isFavorite = true;
-                }
-
+                boolean isFavorite = taskViewModel.isInFavorite(task.getId());
                 AppExecutors.getInstance().mainThread().execute(() -> {
                     binding.checkboxFavorite.setChecked(isFavorite);
                     binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                        if(isChecked){
-                            AppExecutors.getInstance().diskIO().execute(()->{
-                                db.taskDAO().addFavorite(user.getUserId(), task.getId());
-                            });
-
-                        }
-                        else {
-                            AppExecutors.getInstance().diskIO().execute(()->{
-                                db.taskDAO().removeFavorite(user.getUserId(), task.getId());
-                            });
-                        }
+                        taskViewModel.switchFavorite(task.getId());
                     });
-                });
-            });
 
-            binding.deleteButtonTask.setOnClickListener(v -> {
-                AppExecutors.getInstance().diskIO().execute(() -> {
-                    db.taskDAO().delete(task);
-                    Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                    binding.deleteButtonTask.setOnClickListener(v -> {
+                        taskViewModel.deleteTask(task.getId());
+                        Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
+                    });
                 });
             });
 

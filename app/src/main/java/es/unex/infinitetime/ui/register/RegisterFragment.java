@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.util.Log;
@@ -21,11 +22,13 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentRegisterBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.viewmodel.UserViewModel;
 
 
 public class RegisterFragment extends Fragment {
 
     private FragmentRegisterBinding binding;
+    private UserViewModel viewModel;
 
     public RegisterFragment() {
 
@@ -41,6 +44,7 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentRegisterBinding.inflate(inflater, container, false);
+        viewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
         return binding.getRoot();
 
     }
@@ -49,17 +53,11 @@ public class RegisterFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.d("Debug", "onViewCreated RegisterFragment");
-
         Button btnRegister = binding.btnRegister;
 
         TextInputEditText tvUsername = binding.textEditUsernameRegister;
         TextInputEditText tvPassword = binding.textEditPasswordRegister;
         TextInputEditText tvEmail = binding.textEditEmailRegister;
-
-        tvUsername.setText(getArguments().getString("username"));
-
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
 
         btnRegister.setOnClickListener(v1 -> {
 
@@ -71,18 +69,18 @@ public class RegisterFragment extends Fragment {
 
             if(!user.getUsername().equals("") && !user.getPassword().equals("") && !user.getEmail().equals("")) {
                 AppExecutors.getInstance().diskIO().execute(() -> {
-                    if(db.userDAO().getUser(user.getUsername()) != null) {
-                        Snackbar.make(v1, "El usuario ya existe", Snackbar.LENGTH_LONG).show();
-                    }
-                    else {
-                        db.userDAO().insert(user);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("username", user.getUsername());
-                        bundle.putString("password", user.getPassword());
-                        AppExecutors.getInstance().mainThread().execute(() -> Navigation
-                                .findNavController(v1)
-                                .navigate(R.id.action_registerFragment_to_loginFragment, bundle));
-                    }
+                    boolean exists = viewModel.usernameExists(user.getUsername());
+                    AppExecutors.getInstance().mainThread().execute(() -> {
+                        if(exists) {
+                            Snackbar.make(v1, "El usuario ya existe", Snackbar.LENGTH_LONG).show();
+                        }
+                        else {
+                            viewModel.insertUser(user);
+                            Navigation
+                                    .findNavController(v1)
+                                    .navigate(R.id.action_registerFragment_to_loginFragment);
+                        }
+                    });
                 });
             }
             else{

@@ -8,29 +8,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentListOfProjectsBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.model.Project;
-import es.unex.infinitetime.ui.login.PersistenceUser;
-import es.unex.infinitetime.ui.tabs.ListTasksFragment;
+import es.unex.infinitetime.viewmodel.ProjectViewModel;
+import es.unex.infinitetime.viewmodel.SharedViewModel;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 
 public class ListOfProjectsFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "user_id";
-
-    private long user_id;
 
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -39,8 +31,12 @@ public class ListOfProjectsFragment extends Fragment {
 
     private FragmentListOfProjectsBinding binding;
 
+    private ProjectViewModel projectViewModel;
+    private TaskViewModel taskViewModel;
+    private SharedViewModel sharedViewModel;
+
     public ListOfProjectsFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -55,6 +51,9 @@ public class ListOfProjectsFragment extends Fragment {
 
 
         binding = FragmentListOfProjectsBinding.inflate(inflater, container, false);
+        projectViewModel = ViewModelProviders.of(getActivity()).get(ProjectViewModel.class);
+        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
+        sharedViewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
 
         return binding.getRoot();
     }
@@ -62,7 +61,6 @@ public class ListOfProjectsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        loadItems();
     }
 
     @Override
@@ -74,30 +72,18 @@ public class ListOfProjectsFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new ListProjectAdapter(getActivity().getApplicationContext(), item -> {
-            Bundle bundle = new Bundle();
-            bundle.putLong(ListTasksFragment.ARG_PARAM1, item.getId());
-            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_projects_to_listTasksFragment, bundle);
-        });
+            taskViewModel.setProjectId(item.getId());
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_projects_to_listTasksFragment);
+        }, projectViewModel, sharedViewModel);
 
         addNewProject = binding.AddProject;
         addNewProject.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_projects_to_addProjectFragment);
         });
 
-        user_id = PersistenceUser.getInstance().getUserId();
-
         mRecyclerView.setAdapter(mAdapter);
-    }
-
-    private void loadItems() {
-        List<Project> mItems = new ArrayList<>();
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                mAdapter.load(mItems);
-            });
+        projectViewModel.getProjectsByUser().observe(getViewLifecycleOwner(), projects -> {
+            mAdapter.load(projects);
         });
-
     }
 }

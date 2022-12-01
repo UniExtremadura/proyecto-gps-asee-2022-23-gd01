@@ -2,7 +2,6 @@ package es.unex.infinitetime.model;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -14,16 +13,16 @@ public interface TaskDAO {
 
 
     @Query("SELECT * FROM task")
-    LiveData<List<Task>> getAllTasks();
+    List<Task> getAllTasks();
 
     @Query("SELECT COUNT (*) FROM task WHERE user_id=:userId AND state=:state")
     LiveData<Integer> getTasksNum(long userId, int state);
 
-    @Query("SELECT * FROM task WHERE project_id=:projectId AND state=:state")
-    LiveData<List<Task>> getTasksByState(long projectId, int state);
+    @Query("SELECT * FROM task WHERE project_id=:projectId")
+    LiveData<List<Task>> getTasksProject(long projectId);
 
     @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId)")
-    LiveData<List<Task>> getAllTaskFavorite(long userId);
+    LiveData<List<Task>> getFavoriteTasks(long userId);
 
     @Query("SELECT * FROM task WHERE id = :taskId")
     LiveData<Task> getTask(long taskId);
@@ -34,8 +33,8 @@ public interface TaskDAO {
     @Query("DELETE FROM favorite WHERE user_id = :userId AND task_id = :taskId")
     void removeFavorite(long userId, long taskId);
 
-    @Query("SELECT * FROM favorite")
-    LiveData<List<Favorite>> getAllFavorites();
+    @Query("SELECT * FROM favorite WHERE user_id = :userId AND task_id = :taskId")
+    Favorite getFavorite(long userId, long taskId);
 
     @Insert
     void insert(Task task);
@@ -43,8 +42,8 @@ public interface TaskDAO {
     @Update
     int update(Task task);
 
-    @Delete
-    void delete(Task task);
+    @Query("DELETE FROM task WHERE id = :taskId")
+    void delete(long taskId);
 
     @Query("DELETE FROM task")
     void deleteAllTasks();

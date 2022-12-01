@@ -4,6 +4,7 @@ package es.unex.infinitetime.ui.login;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.os.Bundle;
@@ -24,11 +25,14 @@ import es.unex.infinitetime.databinding.FragmentLoginBinding;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class LoginFragment extends Fragment {
 
     private FragmentLoginBinding binding;
     private Button registerButton;
+    private UserViewModel viewModel;
 
 
     @Nullable
@@ -38,6 +42,7 @@ public class LoginFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         binding = FragmentLoginBinding.inflate(inflater, container, false);
+        viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
         return binding.getRoot();
 
     }
@@ -54,33 +59,24 @@ public class LoginFragment extends Fragment {
         final TextInputEditText passwordEditText = binding.textEditPasswordLogin;
         final Button loginButton = binding.btnLogin;
 
-        if(getArguments() != null){
-            usernameEditText.setText(getArguments().getString("username"));
-            passwordEditText.setText(getArguments().getString("password"));
-        }
-
-        PersistenceUser persistenceUser = PersistenceUser.getInstance();
-        persistenceUser.deleteUserId();
-
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
+        viewModel.closeSession();
 
         loginButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString();
             String password = passwordEditText.getText().toString();
             if(!username.equals("") && !password.equals("")){
                 AppExecutors.getInstance().diskIO().execute(() -> {
-                    User user = db.userDAO().getUser(username);
-                    if(user == null || !user.getPassword().equals(password)) {
-                        Snackbar.make(v, "Usuario no encontrado o la contraseña es incorrecta", Snackbar.LENGTH_LONG).show();
-                    }
-                    else{
-                        persistenceUser.setUserId(user.getId());
-                        persistenceUser.saveUserId();
-                        AppExecutors.getInstance().mainThread().execute(() -> {
+                    User user = viewModel.getUserByUsername(username);
+                    AppExecutors.getInstance().mainThread().execute(() -> {
+                        if(user == null || !user.getPassword().equals(password)) {
+                            Snackbar.make(v, "Usuario no encontrado o la contraseña es incorrecta", Snackbar.LENGTH_LONG).show();
+                        }
+                        else{
+                            viewModel.openSession(user.getId());
                             ((DrawerLocker) getActivity()).setDrawerEnabled(true);
                             Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_favorite);
-                        });
-                    }
+                        }
+                    });
                 });
             }
             else{
@@ -90,9 +86,7 @@ public class LoginFragment extends Fragment {
 
         registerButton = binding.btnRegister;
         registerButton.setOnClickListener(v -> {
-            Bundle bundle = new Bundle();
-            bundle.putString("username", usernameEditText.getText().toString());
-            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_registerFragment, bundle);
+            Navigation.findNavController(v).navigate(R.id.action_loginFragment_to_registerFragment);
         });
     }
 

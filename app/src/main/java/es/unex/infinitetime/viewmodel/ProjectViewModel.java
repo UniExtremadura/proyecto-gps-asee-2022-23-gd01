@@ -6,24 +6,21 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.model.Project;
 import es.unex.infinitetime.repository.Repository;
-import es.unex.infinitetime.ui.login.PersistenceUser;
 
 public class ProjectViewModel extends ViewModel {
 
     private final Repository repository;
-    private final long userId;
-    private final MutableLiveData<Project> selectedProject = new MutableLiveData<>();
+    private final MutableLiveData<Project> selectedProject;
 
     public ProjectViewModel() {
-        repository = Repository.getInstance(null);
-        userId = PersistenceUser.getInstance().getUserId();
+        repository = Repository.getInstance();
+        selectedProject = new MutableLiveData<>();
     }
 
     public LiveData<List<Project>> getProjectsByUser() {
-        return repository.getUserDAO().getAllProjectsOfUser(userId);
+        return repository.getAllProjectsUser();
     }
 
     public void selectProject(Project project) {
@@ -35,14 +32,14 @@ public class ProjectViewModel extends ViewModel {
     }
 
     public void insertProject(Project project) {
-        AppExecutors.getInstance().diskIO().execute(() -> repository.getProjectDAO().insert(project));
+        repository.insertProject(project);
     }
 
     public void updateProject(Project project) {
-        AppExecutors.getInstance().diskIO().execute(() -> repository.getProjectDAO().update(project));
+        repository.updateProject(project);
     }
 
-    public void deleteProject(Project project) {
-        AppExecutors.getInstance().diskIO().execute(() -> repository.getProjectDAO().delete(project));
+    public void deleteProject(long projectId) {
+        repository.deleteProject(projectId);
     }
 }

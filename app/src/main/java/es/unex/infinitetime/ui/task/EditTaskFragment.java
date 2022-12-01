@@ -28,14 +28,9 @@ import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class EditTaskFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "task_id";
-
-    private long taskId;
-
     private FragmentTaskBinding binding;
 
     private TaskViewModel taskViewModel;
-    private UserViewModel userViewModel;
 
     public EditTaskFragment() {
 
@@ -46,8 +41,7 @@ public class EditTaskFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentTaskBinding.inflate(inflater, container, false);
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
-        taskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
+        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
         return binding.getRoot();
     }
 
@@ -64,8 +58,6 @@ public class EditTaskFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        taskId = getArguments().getLong(ARG_PARAM1);
-
         taskViewModel.getSelectedTask().observe(getViewLifecycleOwner(), task -> {
             binding.nameTask.setText(task.getName());
             binding.descriptionTask.setText(task.getDescription());
@@ -76,8 +68,8 @@ public class EditTaskFragment extends Fragment {
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
             try {
                 binding.dateTask.setText(sdf.format(task.getDeadline()));
-
-            }catch (Exception e){
+            }
+            catch (Exception e){
                 e.printStackTrace();
                 Snackbar.make(binding.getRoot(), "Fecha introducida anteriormente no valida", Snackbar.LENGTH_LONG).show();
             }
@@ -95,21 +87,23 @@ public class EditTaskFragment extends Fragment {
             task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
             if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
                 task.setState(TaskState.TODO);
-            } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
+            }
+            else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
                 task.setState(TaskState.DOING);
-            } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
+            }
+            else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
                 task.setState(TaskState.DONE);
             }
             String date= binding.dateTask.getText().toString();
-            Date date1 = null;
+            Date dateUpdate = null;
 
             try {
-                date1 = new SimpleDateFormat("dd/MM/yyyy").parse(date);
+                dateUpdate = new SimpleDateFormat("dd/MM/yyyy").parse(date);
             } catch (Exception e) {
                 e.printStackTrace();
                 Snackbar.make(v, "Error al parsear la fecha. El formato debe ser: dd/MM/yyyy", Snackbar.LENGTH_LONG).show();
             }
-            task.setDeadline(date1);
+            task.setDeadline(dateUpdate);
             taskViewModel.updateTask(task);
             Navigation.findNavController(v).navigateUp();
         });

@@ -25,7 +25,6 @@ import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskDAO;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.model.UserDAO;
-import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 
 public class DownloadFromAPI implements Runnable{
@@ -40,8 +39,6 @@ public class DownloadFromAPI implements Runnable{
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    long userId;
-
     public DownloadFromAPI(Retrofit retrofit) {
 
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
@@ -53,8 +50,6 @@ public class DownloadFromAPI implements Runnable{
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
-
-        userId = PersistenceUser.getInstance().getUserId();
     }
 
     @Override
@@ -99,10 +94,6 @@ public class DownloadFromAPI implements Runnable{
 
             userDAO.deleteAllSharedProjects();
             sharedProjects.forEach(userDAO::insertSharedProject);
-
-
-
-
 
             Log.d("DownloadFromAPI", "Downloaded from API");
         } catch (IOException e) {

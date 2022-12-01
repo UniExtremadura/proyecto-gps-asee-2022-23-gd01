@@ -1,6 +1,9 @@
 package es.unex.infinitetime.viewmodel;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.List;
@@ -15,29 +18,30 @@ public class SharedViewModel extends ViewModel {
     private long projectId;
 
     public SharedViewModel() {
-        repository = Repository.getInstance(null);
+        repository = Repository.getInstance();
     }
 
     public void setProjectId(long projectId) {
         this.projectId = projectId;
     }
 
-    public long getProjectId() {
-        return projectId;
-    }
-
     public LiveData<List<User>> getUsers() {
-        return repository.getUserDAO().getAllUsers();
+        return repository.getAllUsers();
     }
 
     public void switchShared(long userId) {
         AppExecutors.getInstance().diskIO().execute(() -> {
-            boolean isShared = repository.getProjectDAO().getSharedProject(projectId, userId) != null;
+            boolean isShared = repository.isShared(userId, projectId);
+            Log.d("Depurando", "isShared: " + userId + " " + projectId + " " + isShared);
             if (isShared) {
-                repository.getProjectDAO().shareProject(projectId, userId);
+                repository.stopSharingProject(userId, projectId);
             } else {
-                repository.getProjectDAO().stopSharingProject(projectId, userId);
+                repository.shareProject(userId, projectId);
             }
         });
+    }
+
+    public boolean isShared(long userId) {
+        return repository.isShared(userId, projectId);
     }
 }

@@ -3,6 +3,7 @@ package es.unex.infinitetime.ui.project;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
@@ -15,18 +16,19 @@ import com.google.android.material.snackbar.Snackbar;
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentAddProjectBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Project;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.ProjectViewModel;
+import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class AddProjectFragment extends Fragment {
 
     FloatingActionButton confirmNewProjectBtn;
     FloatingActionButton cancelNewProjectBtn;
 
-
-    InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
     FragmentAddProjectBinding binding;
+    ProjectViewModel projectViewModel;
+    UserViewModel userViewModel;
 
     public AddProjectFragment() {
 
@@ -42,6 +44,8 @@ public class AddProjectFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentAddProjectBinding.inflate(inflater, container, false);
+        projectViewModel = ViewModelProviders.of(getActivity()).get(ProjectViewModel.class);
+        userViewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
         return binding.getRoot();
     }
 
@@ -55,19 +59,18 @@ public class AddProjectFragment extends Fragment {
             String project_name = binding.ProjectNameEdit.getText().toString();
             String project_description = binding.ProjectDescriptionEdit.getText().toString();
 
-            if(!project_name.equals("")){
-                AppExecutors.getInstance().diskIO().execute(() -> {
-                    project.setUserId(PersistenceUser.getInstance().getUserId());
-                    project.setName(project_name);
-                    project.setDescription(project_description);
-                    db.projectDAO().insert(project);
+            if(!project_name.equals("")) {
+                project.setUserId(userViewModel.getUserId());
+                project.setName(project_name);
+                project.setDescription(project_description);
+                projectViewModel.insertProject(project);
 
-                    Snackbar.make(v, "Proyecto "+ project.getName()+" creado", Snackbar.LENGTH_SHORT).show();
-
-                    AppExecutors.getInstance().mainThread().execute(() -> Navigation
-                            .findNavController(v)
-                            .navigate(R.id.action_addProjectFragment_to_projects));
-                });
+                Snackbar.make(v, "Proyecto " + project.getName() + " creado", Snackbar.LENGTH_SHORT).show();
+                Navigation.findNavController(v)
+                        .navigate(R.id.action_addProjectFragment_to_projects);
+            }
+            else{
+                Snackbar.make(v, "El nombre del proyecto no puede estar vacío", Snackbar.LENGTH_SHORT).show();
             }
         });
 

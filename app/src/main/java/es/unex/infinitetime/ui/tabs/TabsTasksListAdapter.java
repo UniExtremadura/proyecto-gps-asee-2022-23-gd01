@@ -18,8 +18,7 @@ public class TabsTasksListAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        long projectId = fragment.getArguments().getLong(ListTasksFragment.ARG_PARAM1);
-        return ListTasksStateFragment.newInstance(TaskState.values()[position], projectId);
+        return ListTasksStateFragment.newInstance(TaskState.values()[position]);
     }
 
     @Override

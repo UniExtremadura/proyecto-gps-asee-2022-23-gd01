@@ -16,13 +16,10 @@ public interface ProjectDAO {
     LiveData<Project> getProject(long projectId);
 
     @Query("SELECT * FROM project ")
-    LiveData<List<Project>> getAllProjects();
+    List<Project> getAllProjects();
 
     @Query("SELECT * FROM shared_project")
-    LiveData<List<SharedProject>> getAllSharedProjects();
-
-    @Query("DELETE FROM shared_project")
-    void deleteAllSharedProjects();
+    List<SharedProject> getAllSharedProjects();
 
     @Query("SELECT * FROM task WHERE project_id = :projectId")
     LiveData<List<Task>> getTasks(long projectId);
@@ -42,8 +39,8 @@ public interface ProjectDAO {
     @Update
     int update(Project project);
 
-    @Delete
-    void delete(Project project);
+    @Query("DELETE FROM project WHERE id = :projectId")
+    void delete(long projectId);
 
     @Query("DELETE FROM project")
     void deleteAllProjects();

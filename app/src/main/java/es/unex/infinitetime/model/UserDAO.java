@@ -14,7 +14,7 @@ import java.util.List;
 public interface UserDAO {
 
     @Query("SELECT * FROM user WHERE username = :username")
-    LiveData<User> getUser(String username);
+    User getUser(String username);
 
     @Query("SELECT * FROM user WHERE id = :userId")
     LiveData<User> getUser(long userId);
@@ -22,52 +22,32 @@ public interface UserDAO {
     @Query("SELECT * FROM user")
     LiveData<List<User>> getAllUsers();
 
-    @Query("SELECT * FROM project WHERE user_id = :userId")
-    LiveData<List<Project>> getProjectsCreated(long userId);
+    @Query("SELECT * FROM user")
+    List<User> getAllUsersWithoutLiveData();
 
-    @Query("SELECT * FROM project WHERE user_id = :userId " +
-            "UNION " +
-            "SELECT * FROM project WHERE id IN (SELECT project_id FROM shared_project WHERE user_id = :userId)")
+    @Query("SELECT * FROM project WHERE user_id = :userId OR id IN (SELECT project_id FROM shared_project WHERE user_id = :userId)")
     LiveData<List<Project>> getAllProjectsOfUser(long userId);
-
-    @Query("SELECT * FROM task WHERE user_id = :userId")
-    LiveData<List<Task>> getTasksCreated(long userId);
-
-    @Query("SELECT * FROM shared_project WHERE user_id = :userId")
-    LiveData<List<SharedProject>> getShared(long userId);
 
     @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId)")
     LiveData<List<Task>> getFavoriteTasks(long userId);
 
-    @Query("SELECT * FROM favorite WHERE user_id = :userId")
-    LiveData<List<Favorite>> getFavorites(long userId);
-
-    @Query("SELECT * FROM favorite WHERE user_id=:userId AND task_id=:taskId")
-    Favorite getFavorite(long userId, long taskId);
-
-    @Query("SELECT * FROM project WHERE id IN (SELECT project_id FROM shared_project WHERE user_id = :userId)")
-    LiveData<List<Project>> getProjectsShared(long userId);
-
-    @Query("DELETE FROM project WHERE user_id = :userId")
-    void deleteProjectsCreated(long userId);
-
-    @Query("DELETE FROM shared_project WHERE user_id = :userId")
-    void deleteProjectsShared(long userId);
-
-    @Query("DELETE FROM shared_project WHERE user_id = :userId")
-    void deleteSharedProjects(long userId);
-
-    @Query("DELETE FROM task WHERE user_id = :userId")
-    void deleteTasksCreated(long userId);
+    @Query("SELECT * FROM favorite")
+    List<Favorite> getAllFavorites();
 
     @Insert
     void insert(User user);
 
+    @Insert
+    void insertFavorite(Favorite favorite);
+
+    @Insert
+    void insertSharedProject(SharedProject sharedProject);
+
     @Update
     int update(User user);
 
-    @Delete
-    void delete(User user);
+    @Query("DELETE FROM user WHERE id = :userId")
+    void delete(long userId);
 
     @Query("DELETE FROM user")
     void deleteAllUsers();

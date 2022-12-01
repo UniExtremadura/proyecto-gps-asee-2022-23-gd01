@@ -18,7 +18,7 @@ public interface UserRemoteDAO {
     @POST("tabs/users")
     Call<List<UserRemote>> insertUsers(@Body List<UserRemote> users);
 
-    @DELETE("tabs/users")
-    public Call<List<UserRemote>> deleteUsers();
+    @DELETE("tabs/users/search?id=*")
+    Call<List<UserRemote>> deleteUsers();
 
 }

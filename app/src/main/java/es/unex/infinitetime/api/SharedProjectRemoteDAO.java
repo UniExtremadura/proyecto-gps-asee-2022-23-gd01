@@ -10,13 +10,13 @@ import retrofit2.http.POST;
 
 public interface SharedProjectRemoteDAO {
 
-        @GET("tab/shared_projects")
+        @GET("tabs/shared_projects")
         Call<List<SharedProjectRemote>> getSharedProjects();
 
-        @POST("tab/shared_projects")
+        @POST("tabs/shared_projects")
         Call<List<SharedProjectRemote>> insertSharedProjects(@Body List<SharedProjectRemote> sharedProjects);
 
-        @DELETE("tab/shared_projects/user_id/{user_id}")
+        @DELETE("tabs/shared_projects/search?user_id=*")
         Call<List<SharedProjectRemote>> deleteSharedProjects();
 
 }

@@ -19,22 +19,25 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAdapter.ViewHolder> {
 
     private List<Task> mItems = new ArrayList<>();
+    private TaskViewModel taskViewModel;
     Context mContext;
 
     public interface OnItemClickListener {
         void onItemClick(Task item);
     }
 
-    private final ListTasksStateAdapter.OnItemClickListener listener;
+    private final OnItemClickListener listener;
 
-    public ListTasksStateAdapter(Context context, ListTasksStateAdapter.OnItemClickListener listener) {
+    public ListTasksStateAdapter(Context context, OnItemClickListener listener, TaskViewModel taskViewModel) {
         mContext = context;
         this.listener = listener;
+        this.taskViewModel = taskViewModel;
     }
 
     @NonNull
@@ -44,7 +47,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_item_task, parent, false);
 
-        return new ListTasksStateAdapter.ViewHolder(mContext,v);
+        return new ListTasksStateAdapter.ViewHolder(mContext,v, taskViewModel);
     }
 
     @Override
@@ -88,12 +91,14 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
         private FragmentItemTaskBinding binding;
 
+        private TaskViewModel taskViewModel;
 
-        public ViewHolder(Context context, View itemView) {
+        public ViewHolder(Context context, View itemView, TaskViewModel taskViewModel) {
             super(itemView);
 
             mContext = context;
             binding = FragmentItemTaskBinding.bind(itemView);
+            this.taskViewModel = taskViewModel;
 
         }
 
@@ -105,43 +110,21 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
             Button delete = binding.deleteButtonTask;
 
-
             delete.setOnClickListener(v -> {
-                AppExecutors.getInstance().diskIO().execute(() -> {
-                    db.taskDAO().delete(task);
-                    Snackbar.make(v, "Tarea "+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
-                });
+                taskViewModel.deleteTask(task.getId());
+                Snackbar.make(v, "Tarea "+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
             });
 
-
-
             AppExecutors.getInstance().diskIO().execute(() -> {
-                boolean isFavorite;
-                if(db.userDAO().getFavorite(PersistenceUser.getInstance().getUserId(), task.getId()) == null){
-                    isFavorite = false;
-                }
-                else{
-                    isFavorite = true;
-                }
-
+                boolean isFavorite = taskViewModel.isInFavorite(task.getId());
                 AppExecutors.getInstance().mainThread().execute(() -> {
                     binding.checkboxFavorite.setChecked(isFavorite);
                     binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                        if(isChecked){
-                            AppExecutors.getInstance().diskIO().execute(()->{
-                                db.taskDAO().addFavorite(PersistenceUser.getInstance().getUserId(), task.getId());
-                            });
-
-                        }
-                        else {
-                            AppExecutors.getInstance().diskIO().execute(()->{
-                                db.taskDAO().removeFavorite(PersistenceUser.getInstance().getUserId(), task.getId());
-                            });
-                        }
+                        taskViewModel.switchFavorite(task.getId());
                     });
                 });
-            });
 
+            });
         }
     }
 

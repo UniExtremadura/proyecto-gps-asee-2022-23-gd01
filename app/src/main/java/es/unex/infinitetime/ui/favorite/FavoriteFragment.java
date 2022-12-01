@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +20,8 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentFavoriteBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.ui.login.PersistenceUser;
-
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 
 public class FavoriteFragment extends Fragment {
@@ -29,7 +30,9 @@ public class FavoriteFragment extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     private FavoriteAdapter mAdapter;
 
+
     private FragmentFavoriteBinding binding;
+    private TaskViewModel taskViewModel;
 
     public FavoriteFragment() {
 
@@ -45,6 +48,7 @@ public class FavoriteFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentFavoriteBinding.inflate(inflater, container, false);
+        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
 
         return binding.getRoot();
     }
@@ -59,35 +63,20 @@ public class FavoriteFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         mAdapter = new FavoriteAdapter(getActivity().getApplicationContext(), item -> {
-            Bundle bundle = new Bundle();
-            bundle.putLong("task_id", item.getId());
-            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_favorite_to_editTaskFragment, bundle);
-        });
+            taskViewModel.selectTask(item);
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_favorite_to_editTaskFragment);
+        }, taskViewModel);
 
         mRecyclerView.setAdapter(mAdapter);
+
+        taskViewModel.getFavoriteTasks().observe(getViewLifecycleOwner(), tasks -> {
+            mAdapter.load(tasks);
+        });
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadItems();
     }
-
-
-    private void loadItems() {
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
-
-        AppExecutors.getInstance().diskIO().execute(()-> {
-            List<Task> m = db.userDAO().getFavoriteTasks(PersistenceUser.getInstance().getUserId());
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                mAdapter.load(m);
-            });
-        });
-
-
-    }
-
-
-
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +22,7 @@ import es.unex.infinitetime.databinding.FragmentTasksBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
+import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 
 public class ListTasksStateFragment extends Fragment {
@@ -33,11 +35,11 @@ public class ListTasksStateFragment extends Fragment {
 
     ListTasksStateAdapter adapter;
     private FragmentTasksBinding binding;
+    private TaskViewModel taskViewModel;
 
     @Override
     public void onResume() {
         super.onResume();
-        loadTasks();
     }
 
     @Override
@@ -48,9 +50,9 @@ public class ListTasksStateFragment extends Fragment {
         Bundle bundle = getArguments();
 
         state = TaskState.values()[bundle.getInt("taskState")];
-        projectId = bundle.getLong("projectId");
 
         binding = FragmentTasksBinding.inflate(inflater, container, false);
+        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
 
         return binding.getRoot();
     }
@@ -64,31 +66,23 @@ public class ListTasksStateFragment extends Fragment {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
         adapter = new ListTasksStateAdapter(getActivity().getApplicationContext(), item -> {
-            Bundle bundleTask = new Bundle();
-            bundleTask.putLong("task_id", item.getId());
-            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_listTasksFragment_to_editTaskFragment, bundleTask);
+            taskViewModel.selectTask(item);
+            Navigation.findNavController(binding.getRoot()).navigate(R.id.action_listTasksFragment_to_editTaskFragment);
+        }, taskViewModel);
+
+        taskViewModel.getTasksProject().observe(getViewLifecycleOwner(), tasks -> {
+            tasks.removeIf(task -> task.getState() != state);
+            adapter.load(tasks);
         });
 
         mRecyclerView.setAdapter(adapter);
     }
 
-    public static ListTasksStateFragment newInstance(TaskState taskState, long projectId) {
+    public static ListTasksStateFragment newInstance(TaskState taskState) {
         ListTasksStateFragment fragment = new ListTasksStateFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_PARAM1, taskState.ordinal());
-        args.putLong(ARG_PARAM2, projectId);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private void loadTasks() {
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            List<Task> tasks = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).projectDAO().getTasks(projectId);
-            tasks.removeIf(task -> task.getState() != state);
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                adapter.load(tasks);
-            });
-        });
     }
 }

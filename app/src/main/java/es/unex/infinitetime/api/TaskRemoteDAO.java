@@ -16,7 +16,7 @@ public interface TaskRemoteDAO {
     @POST("tabs/tasks")
     public Call<List<TaskRemote>> insertTasks(@Body List<TaskRemote> tasks);
 
-    @DELETE("tabs/tasks")
+    @DELETE("tabs/tasks/search?id=*")
     public Call<List<TaskRemote>> deleteTasks();
 
 }

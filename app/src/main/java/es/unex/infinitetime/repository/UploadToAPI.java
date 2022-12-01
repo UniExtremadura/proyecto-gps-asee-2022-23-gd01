@@ -22,7 +22,6 @@ import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskDAO;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.model.UserDAO;
-import es.unex.infinitetime.ui.login.PersistenceUser;
 import retrofit2.Retrofit;
 
 public class UploadToAPI implements Runnable {
@@ -37,8 +36,6 @@ public class UploadToAPI implements Runnable {
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    long userId;
-
     public UploadToAPI(Retrofit retrofit) {
 
         userRemoteDAO = retrofit.create(UserRemoteDAO.class);
@@ -50,22 +47,20 @@ public class UploadToAPI implements Runnable {
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
-
-        userId = PersistenceUser.getInstance().getUserId();
     }
 
     @Override
     public void run() {
         try {
-            List<User> users = userDAO.getAllUsers().getValue();
-            userRemoteDAO.deleteUsers().execute();
+            List<User> users = userDAO.getAllUsersWithoutLiveData();
             assert users != null;
+            userRemoteDAO.deleteUsers().execute();
             List<UserRemote> usersRemote = users.stream().map(
                     UserRemote::fromUser
             ).collect(Collectors.toList());
             userRemoteDAO.insertUsers(usersRemote).execute();
 
-            List<Project> projects = projectDAO.getAllProjects().getValue();
+            List<Project> projects = projectDAO.getAllProjects();
             projectRemoteDAO.deleteProjects().execute();
             assert projects != null;
             List<ProjectRemote> projectsRemote = projects.stream().map(
@@ -73,7 +68,7 @@ public class UploadToAPI implements Runnable {
             ).collect(Collectors.toList());
             projectRemoteDAO.insertProjects(projectsRemote).execute();
 
-            List<Task> tasks = taskDAO.getAllTasks().getValue();
+            List<Task> tasks = taskDAO.getAllTasks();
             taskRemoteDAO.deleteTasks().execute();
             assert tasks != null;
             List<TaskRemote> tasksRemote = tasks.stream().map(
@@ -81,7 +76,7 @@ public class UploadToAPI implements Runnable {
             ).collect(Collectors.toList());
             taskRemoteDAO.insertTasks(tasksRemote).execute();
 
-            List<Favorite> favorites = taskDAO.getAllFavorites().getValue();
+            List<Favorite> favorites = userDAO.getAllFavorites();
             favoriteRemoteDAO.deleteFavorites().execute();
             assert favorites != null;
             List<FavoriteRemote> favoritesRemote = favorites.stream().map(
@@ -89,7 +84,7 @@ public class UploadToAPI implements Runnable {
             ).collect(Collectors.toList());
             favoriteRemoteDAO.insertFavorites(favoritesRemote).execute();
 
-            List<SharedProject> sharedProjects = projectDAO.getAllSharedProjects().getValue();
+            List<SharedProject> sharedProjects = projectDAO.getAllSharedProjects();
             sharedProjectRemoteDAO.deleteSharedProjects().execute();
             assert sharedProjects != null;
             List<SharedProjectRemote> sharedProjectsRemote = sharedProjects.stream().map(

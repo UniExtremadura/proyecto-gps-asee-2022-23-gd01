@@ -21,8 +21,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import es.unex.infinitetime.databinding.ActivityMainBinding;
+import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.repository.Repository;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
 
 public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
@@ -44,13 +45,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         toggle.syncState();
     }
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        InfiniteDatabase.getDatabase(this);
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         drawer = binding.drawerLayout;
@@ -65,8 +64,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.favorite, R.id.projects, R.id.stats,
-                R.id.user, R.id.cloudFragment,
-                R.id.loginFragment)
+                R.id.user, R.id.cloudFragment, R.id.loginFragment)
                 .setOpenableLayout(drawer)
                 .build();
 
@@ -76,11 +74,11 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        if (PersistenceUser.getInstance().getUserId() == -1) {
+        if (PersistenceUser.getInstance().hasValidUserId()) {
             navController.navigate(R.id.loginFragment);
         }
 
-        Repository.getInstance(this).initiate();
+        Repository.getInstance().downloadFromAPI();
 
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         persistenceUser.setPreferences(mPrefs);
@@ -137,7 +135,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
     @Override
     protected void onDestroy() {
-        Repository.getInstance(null).finish();
         super.onDestroy();
         binding = null;
     }

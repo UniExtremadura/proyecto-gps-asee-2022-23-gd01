@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import es.unex.infinitetime.AppExecutors;
@@ -22,7 +23,8 @@ import com.google.android.material.snackbar.Snackbar;
 
 import es.unex.infinitetime.databinding.FragmentEditProjectBinding;
 import es.unex.infinitetime.R;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.ProjectViewModel;
 
 
 public class EditProjectFragment extends Fragment {
@@ -33,14 +35,13 @@ public class EditProjectFragment extends Fragment {
 
     private FragmentEditProjectBinding binding;
 
-
-
-
     FloatingActionButton confirmEditCheck;
     FloatingActionButton cancelEditCheck;
 
+    private ProjectViewModel projectViewModel;
+
     public EditProjectFragment() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -53,6 +54,7 @@ public class EditProjectFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentEditProjectBinding.inflate(inflater, container, false);
+        projectViewModel = ViewModelProviders.of(getActivity()).get(ProjectViewModel.class);
         return binding.getRoot();
     }
 
@@ -60,34 +62,24 @@ public class EditProjectFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        projectId = getArguments().getLong(ARG_PARAM1);
-
         confirmEditCheck = binding.checkEditBtn;
         cancelEditCheck = binding.cancelEditBtn;
 
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            Project project = InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(projectId);
-
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                binding.ProjectNameEdit.setText(project.getName());
-                binding.ProjectDescriptionEdit.setText(project.getDescription());
-            });
+        projectViewModel.getSelectedProject().observe(getViewLifecycleOwner(), project -> {
+            binding.ProjectNameEdit.setText(project.getName());
+            binding.ProjectDescriptionEdit.setText(project.getDescription());
         });
+
         confirmEditCheck.setOnClickListener(v -> {
-            String projectName= binding.ProjectNameEdit.getText().toString();
-            String projectDescription=binding.ProjectDescriptionEdit.getText().toString();
-            Project updateProject=new Project();
-            updateProject.setId(projectId);
-            updateProject.setUserId(PersistenceUser.getInstance().getUserId());
+            String projectName = binding.ProjectNameEdit.getText().toString();
+            String projectDescription = binding.ProjectDescriptionEdit.getText().toString();
+
+            Project updateProject = projectViewModel.getSelectedProject().getValue();
+
             updateProject.setName(projectName);
             updateProject.setDescription(projectDescription);
-            AppExecutors.getInstance().diskIO().execute(() -> {
 
-                if(InfiniteDatabase.getDatabase(getContext()).projectDAO().getProject(projectId) != null){
-                    InfiniteDatabase.getDatabase(getContext()).projectDAO().update(updateProject);
-                    Snackbar.make(view, "Proyecto actualizado", Snackbar.LENGTH_LONG).show();
-                }
-            });
+            projectViewModel.updateProject(updateProject);
             Navigation.findNavController(v).navigate(R.id.action_editProjectFragment_to_projects);
 
         });

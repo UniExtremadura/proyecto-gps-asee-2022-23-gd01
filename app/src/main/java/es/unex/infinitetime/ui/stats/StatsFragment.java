@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +20,8 @@ import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentStatsBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.TaskState;
-import es.unex.infinitetime.ui.login.PersistenceUser;
+import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.StatisticsViewModel;
 
 
 public class StatsFragment extends Fragment {
@@ -28,6 +30,7 @@ public class StatsFragment extends Fragment {
     private PieChart pieChart;
 
     private FragmentStatsBinding binding;
+    private StatisticsViewModel viewModel;
 
     public StatsFragment() {
 
@@ -50,51 +53,39 @@ public class StatsFragment extends Fragment {
         doneTv = binding.TareasHechas;
 
         pieChart = binding.piechart;
+        viewModel = ViewModelProviders.of(getActivity()).get(StatisticsViewModel.class);
         setData();
-
 
         return binding.getRoot();
     }
 
+    private void setData() {
 
-    private void setData()
-    {
-
-
-
-        PersistenceUser persistenceUser = PersistenceUser.getInstance();
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(getContext());
-
-        AppExecutors.getInstance().diskIO().execute(() ->{
-            int numTodo= db.taskDAO().getTasksNum(PersistenceUser.getInstance().getUserId(), TaskState.TODO.ordinal());
-            int numDoing= db.taskDAO().getTasksNum(PersistenceUser.getInstance().getUserId(), TaskState.DOING.ordinal());
-            int numDone= db.taskDAO().getTasksNum(PersistenceUser.getInstance().getUserId(), TaskState.DONE.ordinal());
-
-            Log.d("Depurando", "numTodo:" + numTodo);
-            Log.d("Depurando", "numDoing:" + numDoing);
-            Log.d("Depurando", "numDone:" + numDone);
-
-
-            todoTv.setText(Integer.toString(numTodo));
-            doingTv.setText(Integer.toString(numDoing));
-            doneTv.setText(Integer.toString(numDone));
-
+        viewModel.getTasksNumToDo().observe(getViewLifecycleOwner(), num -> {
+            todoTv.setText(String.valueOf(num));
             pieChart.addPieSlice(
                     new PieModel(
                             "Tareas por hacer",
-                            Integer.parseInt(todoTv.getText().toString()),
+                            num,
                             Color.parseColor("#FFA726")));
+        });
+
+        viewModel.getTasksNumDoing().observe(getViewLifecycleOwner(), num -> {
+            doingTv.setText(String.valueOf(num));
             pieChart.addPieSlice(
                     new PieModel(
                             "Tareas en progreso",
-                            Integer.parseInt(doingTv.getText().toString()),
+                            num,
                             Color.parseColor("#66BB6A")));
+        });
+
+        viewModel.getTasksNumDone().observe(getViewLifecycleOwner(), num -> {
+            doneTv.setText(String.valueOf(num));
             pieChart.addPieSlice(
                     new PieModel(
-                            "Tareas terminadas",
-                            Integer.parseInt(doneTv.getText().toString()),
+                            "Tareas hechas",
+                            num,
                             Color.parseColor("#EF5350")));
-
         });
 
         pieChart.startAnimation();

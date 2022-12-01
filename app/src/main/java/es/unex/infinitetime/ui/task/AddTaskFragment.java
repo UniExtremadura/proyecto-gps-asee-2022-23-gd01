@@ -15,11 +15,8 @@ import android.view.ViewGroup;
 import java.text.SimpleDateFormat;
 
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
-import es.unex.infinitetime.ui.login.PersistenceUser;
-import es.unex.infinitetime.viewmodel.ProjectViewModel;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
@@ -42,8 +39,8 @@ public class AddTaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        taskViewModel = ViewModelProviders.of(this).get(TaskViewModel.class);
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
+        userViewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
         binding = FragmentTaskBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }

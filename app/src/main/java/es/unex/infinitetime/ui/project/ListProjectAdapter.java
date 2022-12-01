@@ -3,11 +3,13 @@ package es.unex.infinitetime.ui.project;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,6 +25,8 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemProjectBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Project;
+import es.unex.infinitetime.viewmodel.ProjectViewModel;
+import es.unex.infinitetime.viewmodel.SharedViewModel;
 
 public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.ViewHolder> {
     private final OnItemClickListener listener;
@@ -30,17 +34,18 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
     private List<Project> mItems = new ArrayList<>();
     Context mContext;
     private FragmentItemProjectBinding binding;
+    private ProjectViewModel projectViewModel;
+    private SharedViewModel sharedViewModel;
 
     public interface OnItemClickListener {
         void onItemClick(Project item);
     }
 
-
-
-    public ListProjectAdapter(Context context, OnItemClickListener listener) {
+    public ListProjectAdapter(Context context, OnItemClickListener listener, ProjectViewModel projectViewModel, SharedViewModel sharedViewModel) {
         mContext = context;
         this.listener = listener;
-
+        this.projectViewModel = projectViewModel;
+        this.sharedViewModel = sharedViewModel;
     }
 
 
@@ -50,7 +55,7 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
                                                             int viewType) {
         binding = FragmentItemProjectBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
 
-        return new ViewHolder(mContext,binding.getRoot());
+        return new ViewHolder(mContext,binding.getRoot(), projectViewModel, sharedViewModel);
     }
 
     @Override
@@ -90,14 +95,17 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private Context mContext;
         private FragmentItemProjectBinding binding;
+        private ProjectViewModel projectViewModel;
+        private SharedViewModel sharedViewModel;
 
-        public ViewHolder(Context context, View itemView) {
+        public ViewHolder(Context context, View itemView, ProjectViewModel projectViewModel, SharedViewModel sharedViewModel) {
             super(itemView);
 
             mContext = context;
             binding = FragmentItemProjectBinding.bind(itemView);
+            this.projectViewModel = projectViewModel;
+            this.sharedViewModel = sharedViewModel;
 
         }
 
@@ -105,34 +113,24 @@ public class ListProjectAdapter extends RecyclerView.Adapter<ListProjectAdapter.
 
             binding.tvItemProjectName.setText(project.getName());
 
-            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
             itemView.setOnClickListener(v -> listener.onItemClick(project));
 
             FloatingActionButton edit = binding.editProjectItemBtn;
             FloatingActionButton delete = binding.deleteProjectBtn;
             FloatingActionButton share = binding.shareProjectItemBtn;
 
-
             edit.setOnClickListener(v -> {
-                Bundle bundle = new Bundle();
-                bundle.putLong("project_id", project.getId());
-                Navigation.findNavController(v).navigate(R.id.action_projects_to_editProjectFragment, bundle);
+                projectViewModel.selectProject(project);
+                Navigation.findNavController(v).navigate(R.id.action_projects_to_editProjectFragment);
             });
 
             delete.setOnClickListener(v -> {
-
-                if(project.getName()!=null){
-                    AppExecutors.getInstance().diskIO().execute(() -> {
-                        db.projectDAO().delete(project);
-                        Snackbar.make(v, "Proyecto "+ project.getName()+" borrado", Snackbar.LENGTH_SHORT).show();
-                    });
-                }
+                projectViewModel.deleteProject(project.getId());
             });
 
             share.setOnClickListener(v -> {
-                Bundle bundle = new Bundle();
-                bundle.putLong("project_id", project.getId());
-                Navigation.findNavController(v).navigate(R.id.action_projects_to_sharedFragment, bundle);
+                sharedViewModel.setProjectId(project.getId());
+                Navigation.findNavController(v).navigate(R.id.action_projects_to_sharedFragment);
             });
 
         }

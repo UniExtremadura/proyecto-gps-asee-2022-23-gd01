@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,6 +19,7 @@ import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentSharedBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.viewmodel.SharedViewModel;
 
 
 public class SharedFragment extends Fragment {
@@ -27,6 +29,7 @@ public class SharedFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecyclerView.LayoutManager mLayoutManager;
     private SharedAdapter mAdapter;
+    private SharedViewModel sharedViewModel;
 
     private FragmentSharedBinding binding;
 
@@ -48,7 +51,11 @@ public class SharedFragment extends Fragment {
         Log.d("Depurando", "onCreateView favorite");
 
         binding = FragmentSharedBinding.inflate(inflater, container, false);
-        projectId = getArguments().getLong(ARGS_PARAM1);
+        sharedViewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
+
+        sharedViewModel.getUsers().observe(getViewLifecycleOwner(), users -> {
+            mAdapter.load(users);
+        });
 
         return binding.getRoot();
     }
@@ -62,26 +69,15 @@ public class SharedFragment extends Fragment {
         mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
 
-        mAdapter = new SharedAdapter(getActivity().getApplicationContext(), projectId);
+        mAdapter = new SharedAdapter(getActivity().getApplicationContext(), sharedViewModel);
 
         mRecyclerView.setAdapter(mAdapter);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadItems();
-    }
-
-
-    private void loadItems() {
-
-        AppExecutors.getInstance().diskIO().execute(() -> {
-            List<User> users = InfiniteDatabase.getDatabase(getActivity().getApplicationContext()).userDAO().getAllUsers();
-            AppExecutors.getInstance().mainThread().execute(() -> {
-                mAdapter.load(users);
-            });
-        });
     }
 
 }
