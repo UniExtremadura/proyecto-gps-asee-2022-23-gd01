@@ -1,6 +1,7 @@
 package es.unex.infinitetime.repository;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import java.util.List;
@@ -29,6 +30,8 @@ public class Repository {
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
+    private final MutableLiveData<Long> userId;
+
     private Repository() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -41,6 +44,7 @@ public class Repository {
 
         downloadFromAPI = new DownloadFromAPI(retrofit);
         uploadToAPI = new UploadToAPI(retrofit);
+        userId = new MutableLiveData<>();
     }
 
     public static Repository getInstance() {
@@ -59,15 +63,15 @@ public class Repository {
     }
 
     public LiveData<Long> getUserId() {
-        return PersistenceUser.getInstance().getUserId();
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId.setValue(userId);
     }
 
     public LiveData<User> getUser(){
         return Transformations.switchMap(getUserId(), userDAO::getUser);
-    }
-
-    public LiveData<Project> getProject(long projectId){
-        return projectDAO.getProject(projectId);
     }
 
     public LiveData<List<Project>> getAllProjectsUser(){
@@ -80,14 +84,6 @@ public class Repository {
 
     public LiveData<List<Task>> getTasksProject(long projectId) {
         return taskDAO.getTasksProject(projectId);
-    }
-
-    public LiveData<Task> getTask(long taskId){
-        return taskDAO.getTask(taskId);
-    }
-
-    public LiveData<List<Task>> getAllTasksProject(long projectId){
-        return projectDAO.getTasks(projectId);
     }
 
     public boolean userExists(String username){
@@ -162,6 +158,10 @@ public class Repository {
         projectDAO.stopSharingProject(userId, projectId);
     }
 
+    public User getUserByUsername(String username){
+        return userDAO.getUser(username);
+    }
+
     public void closeSession(){
         PersistenceUser.getInstance().deleteUserId();
     }
@@ -169,10 +169,14 @@ public class Repository {
     public void openSession(long userId){
         PersistenceUser.getInstance().setUserId(userId);
         PersistenceUser.getInstance().saveUserId();
+        setUserId(userId);
     }
 
-    public User getUserByUsername(String username){
-        return userDAO.getUser(username);
+    public boolean isSessionOpen() {
+        boolean opened = PersistenceUser.getInstance().isSessionOpen();
+        if (opened) {
+            setUserId(PersistenceUser.getInstance().getUserId());
+        }
+        return opened;
     }
-
 }

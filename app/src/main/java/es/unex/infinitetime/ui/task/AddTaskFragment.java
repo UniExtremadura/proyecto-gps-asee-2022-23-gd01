@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
 import es.unex.infinitetime.model.Task;
@@ -54,11 +56,17 @@ public class AddTaskFragment extends Fragment {
             Task task = new Task();
             task.setName(binding.nameTask.getText().toString());
             task.setDescription(binding.descriptionTask.getText().toString());
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-            try {
-                task.setDeadline(sdf.parse(binding.dateTask.getText().toString()));
-            } catch (Exception e) {
-                e.printStackTrace();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+            if(binding.dateTask.getText().toString().equals("")){
+                task.setDeadline(new Date());
+            }
+            else{
+                try{
+                    task.setDeadline(sdf.parse(binding.dateTask.getText().toString()));
+                }
+                catch (Exception e){
+                    task.setDeadline(new Date());
+                }
             }
 
             if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
@@ -69,7 +77,12 @@ public class AddTaskFragment extends Fragment {
                 task.setState(TaskState.DONE);
             }
 
-            task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
+            if(binding.priorityTask.getText().toString().equals("")){
+                task.setPriority(0);
+            }
+            else {
+                task.setPriority(Integer.parseInt(binding.priorityTask.getText().toString()));
+            }
 
             task.setEffort(Long.parseLong(binding.spinnerTaskEffort.getSelectedItem().toString()));
 

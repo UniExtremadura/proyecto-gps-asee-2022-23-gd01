@@ -48,4 +48,8 @@ public class UserViewModel extends ViewModel {
     public void openSession(long userId) {
         repository.openSession(userId);
     }
+
+    public boolean isSessionOpen() {
+        return repository.isSessionOpen();
+    }
 }

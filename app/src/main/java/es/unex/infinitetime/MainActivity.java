@@ -2,6 +2,7 @@ package es.unex.infinitetime;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
 
@@ -11,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
@@ -24,6 +26,7 @@ import es.unex.infinitetime.databinding.ActivityMainBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.repository.Repository;
 import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
@@ -70,21 +73,26 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
+
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        if (PersistenceUser.getInstance().hasValidUserId()) {
-            navController.navigate(R.id.loginFragment);
-        }
-
-        Repository.getInstance().downloadFromAPI();
+        UserViewModel viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
 
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         persistenceUser.setPreferences(mPrefs);
         persistenceUser.loadUserId();
 
+        boolean openedSession = viewModel.isSessionOpen();
+
+        if (!openedSession) {
+            navController.navigate(R.id.loginFragment);
+        }
+
         setTheme();
+
+        Repository.getInstance().downloadFromAPI();
 
         mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if (key.equals("theme")) {
@@ -97,10 +105,10 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
                     if (destination.getId() == R.id.loginFragment || destination.getId() == R.id.registerFragment) {
                         setDrawerEnabled(false);
                     }
-                    else setDrawerEnabled(destination.getId() != R.id.settingsFragment || PersistenceUser.getInstance().hasValidUserId());
+                    else setDrawerEnabled(destination.getId() != R.id.settingsFragment || openedSession);
                 });
 
-        if(savedInstanceState == null && !persistenceUser.hasValidUserId()){
+        if(savedInstanceState == null && !viewModel.isSessionOpen()) {
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.favorite, true)
                     .build();

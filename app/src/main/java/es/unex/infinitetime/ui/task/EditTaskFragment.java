@@ -17,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
@@ -84,7 +85,14 @@ public class EditTaskFragment extends Fragment {
             task.setName(binding.nameTask.getText().toString());
             task.setDescription(binding.descriptionTask.getText().toString());
             task.setEffort(Long.parseLong(binding.spinnerTaskEffort.getSelectedItem().toString()));
-            task.setPriority(Long.parseLong(binding.priorityTask.getText().toString()));
+
+            if(binding.priorityTask.getText().toString().equals("")){
+                task.setPriority(0);
+            }
+            else {
+                task.setPriority(Integer.parseInt(binding.priorityTask.getText().toString()));
+            }
+
             if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
                 task.setState(TaskState.TODO);
             }
@@ -94,16 +102,20 @@ public class EditTaskFragment extends Fragment {
             else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
                 task.setState(TaskState.DONE);
             }
-            String date= binding.dateTask.getText().toString();
-            Date dateUpdate = null;
 
-            try {
-                dateUpdate = new SimpleDateFormat("dd/MM/yyyy").parse(date);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Snackbar.make(v, "Error al parsear la fecha. El formato debe ser: dd/MM/yyyy", Snackbar.LENGTH_LONG).show();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+            if(binding.dateTask.getText().toString().equals("")){
+                task.setDeadline(new Date());
             }
-            task.setDeadline(dateUpdate);
+            else{
+                try{
+                    task.setDeadline(sdf.parse(binding.dateTask.getText().toString()));
+                }
+                catch (Exception e){
+                    task.setDeadline(new Date());
+                }
+            }
             taskViewModel.updateTask(task);
             Navigation.findNavController(v).navigateUp();
         });

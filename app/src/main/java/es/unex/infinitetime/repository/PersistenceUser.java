@@ -2,36 +2,36 @@ package es.unex.infinitetime.repository;
 
 import android.content.SharedPreferences;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-
 public class PersistenceUser {
 
     private static PersistenceUser instance;
     private static final String KEY_USER_ID = "user_id";
     private static final long NO_USER = 1000000000;
 
-    private final MutableLiveData<Long> userId;
+    private long userId;
     private SharedPreferences preferences;
 
     public static PersistenceUser getInstance() {
         if(instance == null){
             instance = new PersistenceUser();
-            instance.setUserId(NO_USER);
         }
         return instance;
     }
 
     private PersistenceUser() {
-        userId = new MutableLiveData<>();
+        userId = NO_USER;
     }
 
-    public LiveData<Long> getUserId() {
+    public boolean isSessionOpen() {
+        return userId != NO_USER;
+    }
+
+    public long getUserId() {
         return userId;
     }
 
     public void setUserId(long userId) {
-        this.userId.setValue(userId);
+        this.userId = userId;
     }
 
     public void setPreferences(SharedPreferences preferences) {
@@ -40,11 +40,7 @@ public class PersistenceUser {
 
     public void saveUserId(){
         SharedPreferences.Editor editor =  preferences.edit();
-        if(userId.getValue() != null){
-            editor.putLong(KEY_USER_ID, userId.getValue());
-        } else {
-            editor.putLong(KEY_USER_ID, NO_USER);
-        }
+        editor.putLong(KEY_USER_ID, userId);
         editor.apply();
     }
 
@@ -58,9 +54,5 @@ public class PersistenceUser {
     public void loadUserId(){
         long value = preferences.getLong(KEY_USER_ID, NO_USER);
         setUserId(value);
-    }
-
-    public boolean hasValidUserId(){
-        return userId.getValue() != NO_USER;
     }
 }
