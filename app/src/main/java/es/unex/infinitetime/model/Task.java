@@ -155,7 +155,7 @@ public class Task {
         try {
             task.setDeadline(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).parse(taskRemote.getDeadline()));
         } catch (ParseException e) {
-            e.printStackTrace();
+            task.setDeadline(new Date());
         };
         task.setProjectId(Long.parseLong(taskRemote.getProjectId()));
         task.setUserId(Long.parseLong(taskRemote.getUserId()));

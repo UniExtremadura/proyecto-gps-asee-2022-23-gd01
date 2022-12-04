@@ -92,8 +92,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
 
         setTheme();
 
-        Repository.getInstance().downloadFromAPI();
-
         mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if (key.equals("theme")) {
                 setTheme();
