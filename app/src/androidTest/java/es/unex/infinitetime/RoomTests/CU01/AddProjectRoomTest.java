@@ -26,6 +26,14 @@ public class AddProjectRoomTest {
     private ProjectDAO dao_to_test_project;
 
 
+    @Before
+    public void createVolatileDB(){
+        Context context = ApplicationProvider.getApplicationContext();
+        volatileDB = Room.inMemoryDatabaseBuilder(context, InfiniteDatabase.class).allowMainThreadQueries().build();
+        dao_to_test_user = volatileDB.userDAO();
+        dao_to_test_project = volatileDB.projectDAO();
+    }
+
 
     @Test
     public void addProject(){
