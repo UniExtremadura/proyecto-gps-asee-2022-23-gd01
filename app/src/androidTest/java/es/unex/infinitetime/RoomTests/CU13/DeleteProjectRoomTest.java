@@ -36,6 +36,7 @@ public class DeleteProjectRoomTest {
         dao_to_test_project = volatileDB.projectDAO();
         Assert.assertNotNull(dao_to_test_project);
     }
+
     @Test
     public void deleteProject(){
         User item = new User();
