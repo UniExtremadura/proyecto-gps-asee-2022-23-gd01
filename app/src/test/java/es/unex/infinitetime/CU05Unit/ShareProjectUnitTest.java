@@ -28,4 +28,32 @@ public class ShareProjectUnitTest {
         assertEquals("Fields didn't match", field.get(instance), value);
     }
 
+    @Test
+    public void getProjectIdTest() throws NoSuchFieldException, IllegalAccessException {
+        es.unex.infinitetime.persistence.SharedProject instance = new es.unex.infinitetime.persistence.SharedProject();
+        final Field field = instance.getClass().getDeclaredField("projectId");
+        field.setAccessible(true);
+        field.set(instance, new Long(1));
+
+        //when
+        final Long result = instance.getProjectId();
+
+        //then
+        assertEquals("field wasn't retrieved properly", result, new Long(1));
+    }
+
+    @Test
+    public void getUserIdTest() throws NoSuchFieldException, IllegalAccessException {
+        es.unex.infinitetime.persistence.SharedProject instance = new es.unex.infinitetime.persistence.SharedProject();
+        final Field field = instance.getClass().getDeclaredField("userId");
+        field.setAccessible(true);
+        field.set(instance, new Long(1));
+
+        //when
+        final Long result = instance.getUserId();
+
+        //then
+        assertEquals("field wasn't retrieved properly", result, new Long(1));
+    }
+
 }
