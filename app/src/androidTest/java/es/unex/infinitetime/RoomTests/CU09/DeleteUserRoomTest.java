@@ -33,5 +33,28 @@ public class DeleteUserRoomTest {
 
     }
 
-   
+    @Test
+    public void TaskDBDelete() throws InterruptedException {
+
+        User user = new User();
+        user.setId(1);
+        user.setUsername("username");
+        user.setPassword("password");
+        user.setEmail("email");
+        dao_to_test_user.insert(user);
+
+        List <User> recoveredItems = dao_to_test_user.getAllUsers();
+        Assert.assertEquals(1, recoveredItems.size());
+        dao_to_test_user.delete(user);
+        Assert.assertNull(dao_to_test_user.getUser(1));
+        Assert.assertNull(dao_to_test_user.getUser("Usuario 1"));
+
+    }
+
+    @After
+    public void closeVolatileDB(){
+        volatileDB.close();
+    }
+
+
 }
