@@ -11,10 +11,10 @@ import java.util.List;
 @Dao
 public interface TaskDAO {
 
-    /*
+
     @Query("SELECT * FROM task ")
     List<Task> getAllTasks();
-     */
+
     @Query("SELECT COUNT (*) FROM task WHERE user_id=:userId AND state=:state")
     int getTasksNum(long userId, int state);
 
