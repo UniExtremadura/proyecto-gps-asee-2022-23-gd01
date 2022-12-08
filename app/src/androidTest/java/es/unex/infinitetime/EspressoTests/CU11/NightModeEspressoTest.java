@@ -1,4 +1,4 @@
-package es.unex.infinitetime.CU11;
+package es.unex.infinitetime.EspressoTests.CU11;
 
 
 import static androidx.test.espresso.Espresso.onData;

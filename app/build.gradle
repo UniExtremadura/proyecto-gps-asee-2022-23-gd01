@@ -85,8 +85,7 @@ dependencies {
 
     testImplementation 'org.robolectric:robolectric:4.3.1'
 
-
-
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.2.1")
 
     def room_version = "2.3.0"
 
@@ -100,6 +99,10 @@ dependencies {
     implementation 'com.nineoldandroids:library:2.4.0'
 
     implementation 'com.google.android.material:material:1.8.0-alpha03'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.5'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
 
 
 }
