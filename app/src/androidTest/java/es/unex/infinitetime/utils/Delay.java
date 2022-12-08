@@ -1,4 +1,4 @@
-package es.unex.infinitetime.EspressoTests.utils;
+package es.unex.infinitetime.utils;
 
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 

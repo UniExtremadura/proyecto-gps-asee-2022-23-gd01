@@ -1,4 +1,4 @@
-package es.unex.infinitetime.EspressoTests.CU12;
+package es.unex.infinitetime.EspressoTests.CU04;
 
 
 import static androidx.test.espresso.Espresso.onData;
@@ -6,6 +6,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -36,7 +37,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,14 +47,14 @@ import es.unex.infinitetime.R;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class StatisticsEspressoTest {
+public class ManageFavoritesEspressoTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void estadisticasProyectoTest() {
+    public void gestionarFavoritosTest() {
         ViewInteraction materialButton = onView(
                 Matchers.allOf(ViewMatchers.withId(R.id.btnRegister), withText("Registrarse"),
                         childAtPosition(
@@ -74,9 +74,19 @@ public class StatisticsEspressoTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText.perform(replaceText("CU12"), closeSoftKeyboard());
+        textInputEditText.perform(click());
 
         ViewInteraction textInputEditText2 = onView(
+                allOf(withId(R.id.textEdit_username_register),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.txt_username_register),
+                                        0),
+                                0),
+                        isDisplayed()));
+        textInputEditText2.perform(replaceText("CU05"), closeSoftKeyboard());
+
+        ViewInteraction textInputEditText3 = onView(
                 allOf(withId(R.id.textEdit_email_register),
                         childAtPosition(
                                 childAtPosition(
@@ -84,9 +94,9 @@ public class StatisticsEspressoTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText2.perform(replaceText("CU12@unex.es"), closeSoftKeyboard());
+        textInputEditText3.perform(replaceText("CU05@unex.es"), closeSoftKeyboard());
 
-        ViewInteraction textInputEditText3 = onView(
+        ViewInteraction textInputEditText4 = onView(
                 allOf(withId(R.id.textEdit_password_register),
                         childAtPosition(
                                 childAtPosition(
@@ -94,7 +104,7 @@ public class StatisticsEspressoTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText3.perform(replaceText("12345"), closeSoftKeyboard());
+        textInputEditText4.perform(replaceText("12345"), closeSoftKeyboard());
 
         ViewInteraction materialButton2 = onView(
                 allOf(withId(R.id.btn_register), withText("Registrarse"),
@@ -129,6 +139,28 @@ public class StatisticsEspressoTest {
         appCompatImageButton.perform(click());
 
         ViewInteraction navigationMenuItemView = onView(
+                allOf(withId(R.id.favorite),
+                        childAtPosition(
+                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
+                                        childAtPosition(
+                                                withId(R.id.nav_view),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        navigationMenuItemView.perform(click());
+
+        ViewInteraction appCompatImageButton2 = onView(
+                allOf(withContentDescription("Open navigation drawer"),
+                        childAtPosition(
+                                allOf(withId(R.id.toolbar),
+                                        childAtPosition(
+                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
+                                                0)),
+                                2),
+                        isDisplayed()));
+        appCompatImageButton2.perform(click());
+
+        ViewInteraction navigationMenuItemView2 = onView(
                 allOf(withId(R.id.projects),
                         childAtPosition(
                                 allOf(withId(com.google.android.material.R.id.design_navigation_view),
@@ -137,7 +169,7 @@ public class StatisticsEspressoTest {
                                                 0)),
                                 2),
                         isDisplayed()));
-        navigationMenuItemView.perform(click());
+        navigationMenuItemView2.perform(click());
 
         ViewInteraction floatingActionButton = onView(
                 allOf(withId(R.id.AddProject), withContentDescription("Boton flotante"),
@@ -157,7 +189,7 @@ public class StatisticsEspressoTest {
                                         0),
                                 3),
                         isDisplayed()));
-        appCompatEditText.perform(replaceText("Proyecto CU12"), closeSoftKeyboard());
+        appCompatEditText.perform(replaceText("Proy CU04"), closeSoftKeyboard());
 
         ViewInteraction appCompatEditText2 = onView(
                 allOf(withId(R.id.ProjectDescriptionEdit),
@@ -167,7 +199,7 @@ public class StatisticsEspressoTest {
                                         0),
                                 5),
                         isDisplayed()));
-        appCompatEditText2.perform(replaceText("Descripcion"), closeSoftKeyboard());
+        appCompatEditText2.perform(replaceText("Desc"), closeSoftKeyboard());
 
         ViewInteraction floatingActionButton2 = onView(
                 allOf(withId(R.id.confirmAddProjectBtn),
@@ -205,7 +237,7 @@ public class StatisticsEspressoTest {
                                                 0)),
                                 1),
                         isDisplayed()));
-        appCompatEditText3.perform(replaceText("Tarea 1 CU12"), closeSoftKeyboard());
+        appCompatEditText3.perform(replaceText("Tarea CU04"), closeSoftKeyboard());
 
         ViewInteraction appCompatEditText4 = onView(
                 allOf(withId(R.id.descriptionTask),
@@ -264,7 +296,7 @@ public class StatisticsEspressoTest {
                         childAtPosition(
                                 withId(androidx.constraintlayout.widget.R.id.contentPanel),
                                 0)))
-                .atPosition(3);
+                .atPosition(6);
         materialTextView2.perform(click());
 
         ViewInteraction appCompatEditText6 = onView(
@@ -276,7 +308,9 @@ public class StatisticsEspressoTest {
                                                 0)),
                                 16),
                         isDisplayed()));
-        appCompatEditText6.perform(replaceText("12/12/2023"), closeSoftKeyboard());
+        appCompatEditText6.perform(replaceText("12/06/2023"), closeSoftKeyboard());
+
+        onView(isRoot()).perform(waitFor(4000));
 
         ViewInteraction floatingActionButton4 = onView(
                 allOf(withId(R.id.acceptTaskBtn),
@@ -289,217 +323,19 @@ public class StatisticsEspressoTest {
                         isDisplayed()));
         floatingActionButton4.perform(click());
 
-        onView(isRoot()).perform(waitFor(2000));
+        onView(isRoot()).perform(waitFor(1000));
 
-        ViewInteraction floatingActionButton5 = onView(
-                allOf(withId(R.id.AddProject), withContentDescription("Boton flotante"),
+        ViewInteraction materialCheckBox = onView(
+                allOf(withId(R.id.checkbox_favorite),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.nav_host_fragment_content_main),
+                                        withId(R.id.recyclerView),
                                         0),
-                                2),
-                        isDisplayed()));
-        floatingActionButton5.perform(click());
-
-        onView(isRoot()).perform(waitFor(2000));
-
-        ViewInteraction appCompatEditText7 = onView(
-                allOf(withId(R.id.nameTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
                                 1),
                         isDisplayed()));
-        appCompatEditText7.perform(replaceText("Tarea 2 CU12"), closeSoftKeyboard());
+        materialCheckBox.perform(click());
 
-        ViewInteraction appCompatEditText8 = onView(
-                allOf(withId(R.id.descriptionTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                4),
-                        isDisplayed()));
-        appCompatEditText8.perform(replaceText("Desc"), closeSoftKeyboard());
-
-        ViewInteraction appCompatSpinner3 = onView(
-                allOf(withId(R.id.spinnerTaskState),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                7),
-                        isDisplayed()));
-        appCompatSpinner3.perform(click());
-
-        DataInteraction materialTextView3 = onData(anything())
-                .inAdapterView(allOf(withId(androidx.constraintlayout.widget.R.id.select_dialog_listview),
-                        childAtPosition(
-                                withId(androidx.constraintlayout.widget.R.id.contentPanel),
-                                0)))
-                .atPosition(0);
-        materialTextView3.perform(click());
-
-        ViewInteraction appCompatEditText9 = onView(
-                allOf(withId(R.id.priorityTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                10),
-                        isDisplayed()));
-        appCompatEditText9.perform(replaceText("5"), closeSoftKeyboard());
-
-        ViewInteraction appCompatSpinner4 = onView(
-                allOf(withId(R.id.spinnerTaskEffort),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                13),
-                        isDisplayed()));
-        appCompatSpinner4.perform(click());
-
-        DataInteraction materialTextView4 = onData(anything())
-                .inAdapterView(allOf(withId(androidx.constraintlayout.widget.R.id.select_dialog_listview),
-                        childAtPosition(
-                                withId(androidx.constraintlayout.widget.R.id.contentPanel),
-                                0)))
-                .atPosition(5);
-        materialTextView4.perform(click());
-
-        ViewInteraction appCompatEditText10 = onView(
-                allOf(withId(R.id.dateTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                16),
-                        isDisplayed()));
-        appCompatEditText10.perform(replaceText("15/12/2023"), closeSoftKeyboard());
-
-        ViewInteraction floatingActionButton6 = onView(
-                allOf(withId(R.id.acceptTaskBtn),
-                        childAtPosition(
-                                allOf(withId(R.id.frameLayout),
-                                        childAtPosition(
-                                                withId(R.id.linearLayout2),
-                                                17)),
-                                1),
-                        isDisplayed()));
-        floatingActionButton6.perform(click());
-
-        ViewInteraction floatingActionButton7 = onView(
-                allOf(withId(R.id.AddProject), withContentDescription("Boton flotante"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.nav_host_fragment_content_main),
-                                        0),
-                                2),
-                        isDisplayed()));
-        floatingActionButton7.perform(click());
-
-        ViewInteraction appCompatEditText11 = onView(
-                allOf(withId(R.id.nameTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        appCompatEditText11.perform(replaceText("Tarea 3 CU12"), closeSoftKeyboard());
-
-        ViewInteraction appCompatEditText12 = onView(
-                allOf(withId(R.id.descriptionTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                4),
-                        isDisplayed()));
-        appCompatEditText12.perform(replaceText("Desc"), closeSoftKeyboard());
-
-        ViewInteraction appCompatSpinner5 = onView(
-                allOf(withId(R.id.spinnerTaskState),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                7),
-                        isDisplayed()));
-        appCompatSpinner5.perform(click());
-
-        DataInteraction materialTextView5 = onData(anything())
-                .inAdapterView(allOf(withId(androidx.constraintlayout.widget.R.id.select_dialog_listview),
-                        childAtPosition(
-                                withId(androidx.constraintlayout.widget.R.id.contentPanel),
-                                0)))
-                .atPosition(1);
-        materialTextView5.perform(click());
-
-        ViewInteraction appCompatEditText13 = onView(
-                allOf(withId(R.id.priorityTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                10),
-                        isDisplayed()));
-        appCompatEditText13.perform(replaceText("9"), closeSoftKeyboard());
-
-        ViewInteraction appCompatSpinner6 = onView(
-                allOf(withId(R.id.spinnerTaskEffort),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                13),
-                        isDisplayed()));
-        appCompatSpinner6.perform(click());
-
-        DataInteraction materialTextView6 = onData(anything())
-                .inAdapterView(allOf(withId(androidx.constraintlayout.widget.R.id.select_dialog_listview),
-                        childAtPosition(
-                                withId(androidx.constraintlayout.widget.R.id.contentPanel),
-                                0)))
-                .atPosition(1);
-        materialTextView6.perform(click());
-
-        ViewInteraction appCompatEditText14 = onView(
-                allOf(withId(R.id.dateTask),
-                        childAtPosition(
-                                allOf(withId(R.id.linearLayout2),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                16),
-                        isDisplayed()));
-        appCompatEditText14.perform(replaceText("25/12/2023"), closeSoftKeyboard());
-
-        ViewInteraction floatingActionButton8 = onView(
-                allOf(withId(R.id.acceptTaskBtn),
-                        childAtPosition(
-                                allOf(withId(R.id.frameLayout),
-                                        childAtPosition(
-                                                withId(R.id.linearLayout2),
-                                                17)),
-                                1),
-                        isDisplayed()));
-        floatingActionButton8.perform(click());
-
-        ViewInteraction appCompatImageButton2 = onView(
+        ViewInteraction appCompatImageButton3 = onView(
                 allOf(withContentDescription("Navigate up"),
                         childAtPosition(
                                 allOf(withId(R.id.toolbar),
@@ -508,41 +344,7 @@ public class StatisticsEspressoTest {
                                                 0)),
                                 2),
                         isDisplayed()));
-        appCompatImageButton2.perform(click());
-
-        ViewInteraction appCompatImageButton3 = onView(
-                allOf(withContentDescription("Open navigation drawer"),
-                        childAtPosition(
-                                allOf(withId(R.id.toolbar),
-                                        childAtPosition(
-                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
-                                                0)),
-                                2),
-                        isDisplayed()));
         appCompatImageButton3.perform(click());
-
-        ViewInteraction navigationMenuItemView2 = onView(
-                allOf(withId(R.id.stats),
-                        childAtPosition(
-                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
-                                        childAtPosition(
-                                                withId(R.id.nav_view),
-                                                0)),
-                                3),
-                        isDisplayed()));
-        navigationMenuItemView2.perform(click());
-
-        ViewInteraction textView = onView(
-                allOf(withId(R.id.TareasPorHacer), withText("2"),
-                        withParent(withParent(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class))),
-                        isDisplayed()));
-        textView.check(matches(withText("2")));
-
-        ViewInteraction textView2 = onView(
-                allOf(withId(R.id.TareasEmpezadas), withText("1"),
-                        withParent(withParent(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class))),
-                        isDisplayed()));
-        textView2.check(matches(withText("1")));
 
         ViewInteraction appCompatImageButton4 = onView(
                 allOf(withContentDescription("Open navigation drawer"),
@@ -556,6 +358,96 @@ public class StatisticsEspressoTest {
         appCompatImageButton4.perform(click());
 
         ViewInteraction navigationMenuItemView3 = onView(
+                allOf(withId(R.id.favorite),
+                        childAtPosition(
+                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
+                                        childAtPosition(
+                                                withId(R.id.nav_view),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        navigationMenuItemView3.perform(click());
+
+        ViewInteraction textView = onView(
+                allOf(withId(R.id.nameTaskItem), withText("Tarea CU04"),
+                        withParent(withParent(withId(R.id.recyclerView))),
+                        isDisplayed()));
+        textView.check(matches(isDisplayed()));
+
+        ViewInteraction textView2 = onView(
+                allOf(withId(R.id.nameTaskItem), withText("Tarea CU04"),
+                        withParent(withParent(withId(R.id.recyclerView))),
+                        isDisplayed()));
+        textView2.check(matches(withText("Tarea CU04")));
+
+        ViewInteraction materialCheckBox2 = onView(
+                allOf(withId(R.id.checkbox_favorite),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.recyclerView),
+                                        0),
+                                1),
+                        isDisplayed()));
+        materialCheckBox2.perform(click());
+
+        ViewInteraction appCompatImageButton5 = onView(
+                allOf(withContentDescription("Open navigation drawer"),
+                        childAtPosition(
+                                allOf(withId(R.id.toolbar),
+                                        childAtPosition(
+                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
+                                                0)),
+                                2),
+                        isDisplayed()));
+        appCompatImageButton5.perform(click());
+
+        ViewInteraction navigationMenuItemView4 = onView(
+                allOf(withId(R.id.projects),
+                        childAtPosition(
+                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
+                                        childAtPosition(
+                                                withId(R.id.nav_view),
+                                                0)),
+                                2),
+                        isDisplayed()));
+        navigationMenuItemView4.perform(click());
+
+        ViewInteraction appCompatImageButton6 = onView(
+                allOf(withContentDescription("Open navigation drawer"),
+                        childAtPosition(
+                                allOf(withId(R.id.toolbar),
+                                        childAtPosition(
+                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
+                                                0)),
+                                2),
+                        isDisplayed()));
+        appCompatImageButton6.perform(click());
+
+        ViewInteraction navigationMenuItemView5 = onView(
+                allOf(withId(R.id.favorite),
+                        childAtPosition(
+                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
+                                        childAtPosition(
+                                                withId(R.id.nav_view),
+                                                0)),
+                                1),
+                        isDisplayed()));
+        navigationMenuItemView5.perform(click());
+
+        onView(withText("Tarea CU04")).check(doesNotExist());
+
+        ViewInteraction appCompatImageButton9 = onView(
+                allOf(withContentDescription("Open navigation drawer"),
+                        childAtPosition(
+                                allOf(withId(R.id.toolbar),
+                                        childAtPosition(
+                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
+                                                0)),
+                                2),
+                        isDisplayed()));
+        appCompatImageButton9.perform(click());
+
+        ViewInteraction navigationMenuItemView9 = onView(
                 allOf(withId(R.id.user),
                         childAtPosition(
                                 allOf(withId(com.google.android.material.R.id.design_navigation_view),
@@ -564,9 +456,15 @@ public class StatisticsEspressoTest {
                                                 0)),
                                 4),
                         isDisplayed()));
-        navigationMenuItemView3.perform(click());
+        navigationMenuItemView9.perform(click());
 
-        ViewInteraction materialButton4 = onView(
+        ViewInteraction button9 = onView(
+                allOf(withId(R.id.btn_delete_user), withText("ELIMINAR"),
+                        withParent(withParent(withId(R.id.nav_host_fragment_content_main))),
+                        isDisplayed()));
+        button9.check(matches(isDisplayed()));
+
+        ViewInteraction materialButton9 = onView(
                 allOf(withId(R.id.btn_delete_user), withText("ELIMINAR"),
                         childAtPosition(
                                 childAtPosition(
@@ -574,7 +472,7 @@ public class StatisticsEspressoTest {
                                         0),
                                 5),
                         isDisplayed()));
-        materialButton4.perform(click());
+        materialButton9.perform(click());
     }
 
     private static Matcher<View> childAtPosition(
