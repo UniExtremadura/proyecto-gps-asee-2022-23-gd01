@@ -1,4 +1,4 @@
-package es.unex.infinitetime.ExpressoTests.CU15;
+package es.unex.infinitetime.EspressoTests.CU16;
 
 
 import static androidx.test.espresso.Espresso.onView;
@@ -7,6 +7,7 @@ import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
@@ -14,6 +15,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
+import static es.unex.infinitetime.utils.Delay.waitFor;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,14 +42,14 @@ import es.unex.infinitetime.R;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class EditUserEspressoTest {
+public class EditProjectEspressoTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
     @Test
-    public void editarUsuarioTest() {
+    public void editarProyectoTest2() {
         ViewInteraction materialButton = onView(
                 Matchers.allOf(ViewMatchers.withId(R.id.btnRegister), withText("Registrarse"),
                         childAtPosition(
@@ -67,7 +69,7 @@ public class EditUserEspressoTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText.perform(replaceText("CU15"), closeSoftKeyboard());
+        textInputEditText.perform(replaceText("CU16"), closeSoftKeyboard());
 
         ViewInteraction textInputEditText2 = onView(
                 allOf(withId(R.id.textEdit_email_register),
@@ -77,7 +79,7 @@ public class EditUserEspressoTest {
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText2.perform(replaceText("CU15@unex.es"), closeSoftKeyboard());
+        textInputEditText2.perform(replaceText("CU16@unex.es"), closeSoftKeyboard());
 
         ViewInteraction textInputEditText3 = onView(
                 allOf(withId(R.id.textEdit_password_register),
@@ -122,103 +124,109 @@ public class EditUserEspressoTest {
         appCompatImageButton.perform(click());
 
         ViewInteraction navigationMenuItemView = onView(
-                allOf(withId(R.id.user),
+                allOf(withId(R.id.projects),
                         childAtPosition(
                                 allOf(withId(com.google.android.material.R.id.design_navigation_view),
                                         childAtPosition(
                                                 withId(R.id.nav_view),
                                                 0)),
-                                4),
+                                2),
                         isDisplayed()));
         navigationMenuItemView.perform(click());
 
-        ViewInteraction editText = onView(
-                allOf(withId(R.id.textEdit_username_user), withText("CU15"),
-                        withParent(withParent(withId(R.id.txt_username_user))),
-                        isDisplayed()));
-        editText.check(matches(withText("CU15")));
-
-        ViewInteraction editText2 = onView(
-                allOf(withId(R.id.textEdit_email_user), withText("CU15@unex.es"),
-                        withParent(withParent(withId(R.id.txt_email_user))),
-                        isDisplayed()));
-        editText2.check(matches(withText("CU15@unex.es")));
-
-        ViewInteraction editText3 = onView(
-                allOf(withId(R.id.textEdit_password_user), withText("12345"),
-                        withParent(withParent(withId(R.id.txt_password_user))),
-                        isDisplayed()));
-        editText3.check(matches(withText("12345")));
-
-        ViewInteraction textInputEditText4 = onView(
-                allOf(withId(R.id.textEdit_username_user), withText("CU15"),
+        ViewInteraction floatingActionButton = onView(
+                allOf(withId(R.id.AddProject), withContentDescription("Boton flotante"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.txt_username_user),
+                                        withId(R.id.nav_host_fragment_content_main),
+                                        0),
+                                2),
+                        isDisplayed()));
+        floatingActionButton.perform(click());
+
+        ViewInteraction appCompatEditText = onView(
+                allOf(withId(R.id.ProjectNameEdit),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.nav_host_fragment_content_main),
+                                        0),
+                                3),
+                        isDisplayed()));
+        appCompatEditText.perform(replaceText("Proyecto CU16"), closeSoftKeyboard());
+
+        ViewInteraction appCompatEditText2 = onView(
+                allOf(withId(R.id.ProjectDescriptionEdit),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.nav_host_fragment_content_main),
+                                        0),
+                                5),
+                        isDisplayed()));
+        appCompatEditText2.perform(replaceText("Descripcion"), closeSoftKeyboard());
+
+        ViewInteraction floatingActionButton2 = onView(
+                allOf(withId(R.id.confirmAddProjectBtn),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(R.id.nav_host_fragment_content_main),
                                         0),
                                 0),
                         isDisplayed()));
-        textInputEditText4.perform(replaceText("CU15edit"));
+        floatingActionButton2.perform(click());
 
-        ViewInteraction textInputEditText5 = onView(
-                allOf(withId(R.id.textEdit_username_user), withText("CU15edit"),
+        onView(isRoot()).perform(waitFor(3000));
+
+        ViewInteraction floatingActionButton3 = onView(
+                allOf(withId(R.id.editProjectItemBtn),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.txt_username_user),
+                                        withId(R.id.recyclerView),
                                         0),
-                                0),
+                                3),
                         isDisplayed()));
-        textInputEditText5.perform(closeSoftKeyboard());
+        floatingActionButton3.perform(click());
 
-        ViewInteraction textInputEditText6 = onView(
-                allOf(withId(R.id.textEdit_email_user), withText("CU15@unex.es"),
+        onView(isRoot()).perform(waitFor(2000));
+
+        ViewInteraction appCompatEditText3 = onView(
+                allOf(withId(R.id.ProjectNameEdit), withText("Proyecto CU16"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.txt_email_user),
+                                        withId(R.id.nav_host_fragment_content_main),
                                         0),
-                                0),
+                                1),
                         isDisplayed()));
-        textInputEditText6.perform(replaceText("CU15edit@unex.es"));
+        appCompatEditText3.perform(replaceText("Editado CU16"));
 
-        ViewInteraction textInputEditText7 = onView(
-                allOf(withId(R.id.textEdit_email_user), withText("CU15edit@unex.es"),
+        ViewInteraction appCompatEditText4 = onView(
+                allOf(withId(R.id.ProjectNameEdit), withText("Editado CU16"),
                         childAtPosition(
                                 childAtPosition(
-                                        withId(R.id.txt_email_user),
+                                        withId(R.id.nav_host_fragment_content_main),
                                         0),
-                                0),
+                                1),
                         isDisplayed()));
-        textInputEditText7.perform(closeSoftKeyboard());
+        appCompatEditText4.perform(closeSoftKeyboard());
 
-        ViewInteraction textInputEditText8 = onView(
-                allOf(withId(R.id.textEdit_password_user), withText("12345"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.txt_password_user),
-                                        0),
-                                0),
-                        isDisplayed()));
-        textInputEditText8.perform(replaceText("123456"));
+        onView(isRoot()).perform(waitFor(2000));
 
-        ViewInteraction textInputEditText9 = onView(
-                allOf(withId(R.id.textEdit_password_user), withText("123456"),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.txt_password_user),
-                                        0),
-                                0),
-                        isDisplayed()));
-        textInputEditText9.perform(closeSoftKeyboard());
-
-        ViewInteraction materialButton4 = onView(
-                allOf(withId(R.id.btn_user), withText("Editar"),
+        ViewInteraction floatingActionButton4 = onView(
+                allOf(withId(R.id.checkEditBtn),
                         childAtPosition(
                                 childAtPosition(
                                         withId(R.id.nav_host_fragment_content_main),
                                         0),
                                 4),
                         isDisplayed()));
-        materialButton4.perform(click());
+        floatingActionButton4.perform(click());
+
+        onView(isRoot()).perform(waitFor(2000));
+
+        ViewInteraction textView = onView(
+                allOf(withId(R.id.tv_item_project_name), withText("Editado CU16"),
+                        withParent(withParent(withId(R.id.recyclerView))),
+                        isDisplayed()));
+        textView.check(matches(withText("Editado CU16")));
 
         ViewInteraction appCompatImageButton2 = onView(
                 allOf(withContentDescription("Open navigation drawer"),
@@ -232,28 +240,6 @@ public class EditUserEspressoTest {
         appCompatImageButton2.perform(click());
 
         ViewInteraction navigationMenuItemView2 = onView(
-                allOf(withId(R.id.favorite),
-                        childAtPosition(
-                                allOf(withId(com.google.android.material.R.id.design_navigation_view),
-                                        childAtPosition(
-                                                withId(R.id.nav_view),
-                                                0)),
-                                1),
-                        isDisplayed()));
-        navigationMenuItemView2.perform(click());
-
-        ViewInteraction appCompatImageButton3 = onView(
-                allOf(withContentDescription("Open navigation drawer"),
-                        childAtPosition(
-                                allOf(withId(R.id.toolbar),
-                                        childAtPosition(
-                                                withClassName(is("com.google.android.material.appbar.AppBarLayout")),
-                                                0)),
-                                2),
-                        isDisplayed()));
-        appCompatImageButton3.perform(click());
-
-        ViewInteraction navigationMenuItemView3 = onView(
                 allOf(withId(R.id.user),
                         childAtPosition(
                                 allOf(withId(com.google.android.material.R.id.design_navigation_view),
@@ -262,27 +248,9 @@ public class EditUserEspressoTest {
                                                 0)),
                                 4),
                         isDisplayed()));
-        navigationMenuItemView3.perform(click());
+        navigationMenuItemView2.perform(click());
 
-        ViewInteraction editText4 = onView(
-                allOf(withId(R.id.textEdit_username_user), withText("CU15edit"),
-                        withParent(withParent(withId(R.id.txt_username_user))),
-                        isDisplayed()));
-        editText4.check(matches(withText("CU15edit")));
-
-        ViewInteraction editText5 = onView(
-                allOf(withId(R.id.textEdit_email_user), withText("CU15edit@unex.es"),
-                        withParent(withParent(withId(R.id.txt_email_user))),
-                        isDisplayed()));
-        editText5.check(matches(withText("CU15edit@unex.es")));
-
-        ViewInteraction editText6 = onView(
-                allOf(withId(R.id.textEdit_password_user), withText("123456"),
-                        withParent(withParent(withId(R.id.txt_password_user))),
-                        isDisplayed()));
-        editText6.check(matches(withText("123456")));
-
-        ViewInteraction materialButton5 = onView(
+        ViewInteraction materialButton4 = onView(
                 allOf(withId(R.id.btn_delete_user), withText("ELIMINAR"),
                         childAtPosition(
                                 childAtPosition(
@@ -290,7 +258,7 @@ public class EditUserEspressoTest {
                                         0),
                                 5),
                         isDisplayed()));
-        materialButton5.perform(click());
+        materialButton4.perform(click());
     }
 
     private static Matcher<View> childAtPosition(
