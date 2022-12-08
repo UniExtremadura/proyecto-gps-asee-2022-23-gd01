@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.test.core.app.ApplicationProvider;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +98,10 @@ public class ShowListTaskStateRoomTest {
         Assert.assertEquals(3, recoveredItems.size());
     }
 
-
+    @After
+    public void closeDB(){
+        volatileDB.close();
+    }
 
 
 }
