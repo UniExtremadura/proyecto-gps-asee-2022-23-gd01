@@ -158,8 +158,8 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
     }
 
     public void setTheme(){
-        String theme = mPrefs.getString("theme", "Claro");
-        if (theme.equals("Oscuro")) {
+        String theme = mPrefs.getString("theme", "Tema Claro");
+        if (theme.equals("Tema Oscuro")) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
