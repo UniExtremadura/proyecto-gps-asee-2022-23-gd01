@@ -54,7 +54,13 @@ public class AddTaskFragment extends Fragment {
         binding.acceptTaskBtn.setOnClickListener(v -> {
 
             Task task = new Task();
-            task.setName(binding.nameTask.getText().toString());
+            if(binding.nameTask.getText().toString().isEmpty()
+            || binding.nameTask.getText().toString() == null
+            || binding.nameTask.getText().toString() == ""){
+                task.setName("Tarea sin nombre");
+            }else{
+                task.setName(binding.nameTask.getText().toString());
+            }
             task.setDescription(binding.descriptionTask.getText().toString());
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             if(binding.dateTask.getText().toString().equals("")){
