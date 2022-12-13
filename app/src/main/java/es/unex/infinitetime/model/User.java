@@ -6,6 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import es.unex.infinitetime.api.UserRemote;
+import es.unex.infinitetime.utils.Hash;
 
 @Entity(tableName = "user")
 public class User {
@@ -15,13 +16,33 @@ public class User {
     private long id;
     @ColumnInfo(name = "username")
     private String username;
-    @ColumnInfo(name = "password")
-    private String password;
     @ColumnInfo(name = "email")
     private String email;
 
+    @ColumnInfo(name = "hash", typeAffinity = ColumnInfo.BLOB)
+    private byte[] hash;
+
+    @ColumnInfo(name = "salt", typeAffinity = ColumnInfo.BLOB)
+    private byte[] salt;
+
     public long getId() {
         return id;
+    }
+
+    public byte[] getHash() {
+        return hash;
+    }
+
+    public void setHash(byte[] hash) {
+        this.hash = hash;
+    }
+
+    public byte[] getSalt() {
+        return salt;
+    }
+
+    public void setSalt(byte[] salt) {
+        this.salt = salt;
     }
 
     public void setId(long id) {
@@ -34,14 +55,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -57,8 +70,9 @@ public class User {
         User user = new User();
         user.setId(Long.parseLong(userRemote.getId()));
         user.setUsername(userRemote.getUsername());
-        user.setPassword(userRemote.getPassword());
         user.setEmail(userRemote.getEmail());
+        user.setHash(Hash.stringToArrayByte(userRemote.getHash()));
+        user.setSalt(Hash.stringToArrayByte(userRemote.getSalt()));
         return user;
     }
 

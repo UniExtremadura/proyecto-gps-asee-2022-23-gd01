@@ -5,21 +5,29 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.utils.Hash;
 
 public class UserRemote {
 
     @SerializedName("id")
     @Expose
     private String id;
+
     @SerializedName("username")
     @Expose
     private String username;
-    @SerializedName("password")
-    @Expose
-    private String password;
+
     @SerializedName("email")
     @Expose
     private String email;
+
+    @SerializedName("hash")
+    @Expose
+    private String hash;
+
+    @SerializedName("salt")
+    @Expose
+    private String salt;
 
     /**
      * No args constructor for use in serialization
@@ -28,19 +36,13 @@ public class UserRemote {
     public UserRemote() {
     }
 
-    /**
-     *
-     * @param password
-     * @param id
-     * @param email
-     * @param username
-     */
-    public UserRemote(String id, String username, String password, String email) {
+    public UserRemote(String id, String username, String email, String hash, String salt) {
         super();
         this.id = id;
         this.username = username;
-        this.password = password;
         this.email = email;
+        this.hash = hash;
+        this.salt = salt;
     }
 
     public String getId() {
@@ -59,14 +61,6 @@ public class UserRemote {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -79,8 +73,25 @@ public class UserRemote {
         return new UserRemote(
                 Long.toString(user.getId()),
                 user.getUsername(),
-                user.getPassword(),
-                user.getEmail());
+                user.getEmail(),
+                Hash.arrayByteToString(user.getHash()),
+                Hash.arrayByteToString(user.getSalt())
+        );
     }
 
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 }

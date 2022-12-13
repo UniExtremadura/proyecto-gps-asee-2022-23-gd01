@@ -22,6 +22,7 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentRegisterBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.utils.Hash;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
 
@@ -64,10 +65,11 @@ public class RegisterFragment extends Fragment {
             User user = new User();
 
             user.setUsername(tvUsername.getText().toString());
-            user.setPassword(tvPassword.getText().toString());
             user.setEmail(tvEmail.getText().toString());
 
-            if(!user.getUsername().equals("") && !user.getPassword().equals("") && !user.getEmail().equals("")) {
+            String password = tvPassword.getText().toString();
+
+            if(!user.getUsername().equals("") && !password.equals("") && !user.getEmail().equals("")) {
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     boolean exists = viewModel.usernameExists(user.getUsername());
                     AppExecutors.getInstance().mainThread().execute(() -> {
@@ -75,6 +77,11 @@ public class RegisterFragment extends Fragment {
                             Snackbar.make(v1, "El usuario ya existe", Snackbar.LENGTH_LONG).show();
                         }
                         else {
+                            Hash hash = new Hash();
+                            byte[] salt = hash.getSalt();
+                            byte[] hashPassword = hash.getHash(salt, password);
+                            user.setHash(hashPassword);
+                            user.setSalt(salt);
                             viewModel.insertUser(user);
                             Navigation
                                     .findNavController(v1)

@@ -41,6 +41,10 @@ public class UserViewModel extends ViewModel {
         return repository.getUserByUsername(username);
     }
 
+    public User getUserWithoutLiveData() {
+        return repository.getUserWithoutLiveData();
+    }
+
     public void closeSession() {
         repository.closeSession();
     }

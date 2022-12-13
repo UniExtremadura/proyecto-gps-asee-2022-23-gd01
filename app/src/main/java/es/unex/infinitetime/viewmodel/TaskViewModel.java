@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModel;
 import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.model.Favorite;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.repository.Repository;

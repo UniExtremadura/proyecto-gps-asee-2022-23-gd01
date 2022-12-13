@@ -22,12 +22,15 @@ import es.unex.infinitetime.databinding.FragmentUserBinding;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.utils.Hash;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class UserFragment extends Fragment {
 
     private FragmentUserBinding binding;
     private UserViewModel userViewModel;
+
+    private String oldUsername;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -46,28 +49,41 @@ public class UserFragment extends Fragment {
         userViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
             binding.textEditUsernameUser.setText(user.getUsername());
             binding.textEditEmailUser.setText(user.getEmail());
-            binding.textEditPasswordUser.setText(user.getPassword());
+            oldUsername = user.getUsername();
         });
 
         binding.btnUser.setOnClickListener(v -> {
 
-            if(!binding.textEditUsernameUser.getText().toString().equals("")
-                    && !binding.textEditEmailUser.getText().toString().equals("")
-                    && !binding.textEditPasswordUser.getText().toString().equals("")){
+            String username = binding.textEditUsernameUser.getText().toString();
+            String email = binding.textEditEmailUser.getText().toString();
 
-                    AppExecutors.getInstance().diskIO().execute(() -> {
-                        User user = new User();
-                        user.setUsername(binding.textEditUsernameUser.getText().toString());
-                        user.setEmail(binding.textEditEmailUser.getText().toString());
-                        user.setPassword(binding.textEditPasswordUser.getText().toString());
-                        user.setId(userViewModel.getUserId());
-                        userViewModel.updateUser(user);
-                    });
-            }
-            else{
-                Snackbar.make(v, "Ninguno de los campos puede estar en blanco", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
+            AppExecutors.getInstance().diskIO().execute(() -> {
+
+                if(!username.equals("") && !email.equals("") && !usernameAlreadyExists(username)){
+
+                    String password = binding.textEditPasswordUser.getText().toString();
+
+                    User user = userViewModel.getUserWithoutLiveData();
+                    user.setUsername(username);
+                    user.setEmail(email);
+
+                    // Sí la contraseña no está vacía, se cambia
+                    // y en caso contrario se mantiene la anterior
+                    if(!password.equals("")){
+                        Hash hash = new Hash();
+                        byte[] salt = hash.getSalt();
+                        byte[] hashPassword = hash.getHash(salt, password);
+                        user.setHash(hashPassword);
+                        user.setSalt(salt);
+                    }
+                    userViewModel.updateUser(user);
+                }
+                else{
+                    Snackbar.make(v, "Ninguno de los campos puede estar en blanco", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+
         });
 
         binding.btnDeleteUser.setOnClickListener(v -> {
@@ -81,5 +97,9 @@ public class UserFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private boolean usernameAlreadyExists(String username){
+        return !oldUsername.equals(username) && userViewModel.usernameExists(username);
     }
 }

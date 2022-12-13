@@ -162,6 +162,10 @@ public class Repository {
         return userDAO.getUser(username);
     }
 
+    public User getUserWithoutLiveData(){
+        return userDAO.getUserWithoutLiveData(getUserId().getValue());
+    }
+
     public void closeSession(){
         PersistenceUser.getInstance().deleteUserId();
     }

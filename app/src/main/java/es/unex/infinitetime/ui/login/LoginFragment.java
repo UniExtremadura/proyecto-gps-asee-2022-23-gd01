@@ -26,6 +26,7 @@ import es.unex.infinitetime.R;
 import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.utils.Hash;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class LoginFragment extends Fragment {
@@ -68,7 +69,8 @@ public class LoginFragment extends Fragment {
                 AppExecutors.getInstance().diskIO().execute(() -> {
                     User user = viewModel.getUserByUsername(username);
                     AppExecutors.getInstance().mainThread().execute(() -> {
-                        if(user == null || !user.getPassword().equals(password)) {
+                        Hash hash = new Hash();
+                        if(user == null || !hash.compareHash(user.getSalt(), password, user.getHash())) {
                             Snackbar.make(v, "Usuario no encontrado o la contraseña es incorrecta", Snackbar.LENGTH_LONG).show();
                         }
                         else{

@@ -19,6 +19,9 @@ public interface UserDAO {
     @Query("SELECT * FROM user WHERE id = :userId")
     LiveData<User> getUser(long userId);
 
+    @Query("SELECT * FROM user WHERE id = :userId")
+    User getUserWithoutLiveData(long userId);
+
     @Query("SELECT * FROM user")
     LiveData<List<User>> getAllUsers();
 
