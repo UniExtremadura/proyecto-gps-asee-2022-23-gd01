@@ -13,7 +13,6 @@ import es.unex.infinitetime.persistence.Favorite;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
 import es.unex.infinitetime.persistence.ProjectDAO;
-import es.unex.infinitetime.persistence.SharedProject;
 import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskDAO;
 import es.unex.infinitetime.persistence.User;
