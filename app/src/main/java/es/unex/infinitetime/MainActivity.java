@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         InfiniteDatabase.getDatabase(this);
 
         //Las operaciones de la BD se hacen en otro hilo y se llaman con
-        InfiniteDatabase db = InfiniteDatabase.getDatabase(this);
         //luego con la instancia de la base de datos se llama a los metodos de los DAO
         //db.claseDao.metodoDao();
         //ejemplo -> db.userDAO().getUser("Usuario1");
