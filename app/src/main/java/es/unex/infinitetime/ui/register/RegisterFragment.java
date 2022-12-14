@@ -17,7 +17,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.DrawerLocker;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentRegisterBinding;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
