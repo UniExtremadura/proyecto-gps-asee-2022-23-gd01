@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,7 +12,6 @@ import es.unex.infinitetime.persistence.Favorite;
 import es.unex.infinitetime.persistence.InfiniteDatabase;
 import es.unex.infinitetime.persistence.Project;
 import es.unex.infinitetime.persistence.ProjectDAO;
-import es.unex.infinitetime.persistence.SharedProject;
 import es.unex.infinitetime.persistence.Task;
 import es.unex.infinitetime.persistence.TaskDAO;
 import es.unex.infinitetime.persistence.User;
