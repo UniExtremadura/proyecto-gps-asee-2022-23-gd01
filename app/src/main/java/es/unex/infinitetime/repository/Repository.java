@@ -32,9 +32,11 @@ public class Repository {
 
     private Repository() {
 
-        userDAO = InfiniteDatabase.getDatabase(null).userDAO();
-        projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
-        taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
+        ContainerRepository containerRepository = ContainerRepository.getInstance();
+
+        userDAO = containerRepository.getUserDAO();
+        projectDAO = containerRepository.getProjectDAO();
+        taskDAO = containerRepository.getTaskDAO();
 
         userId = new MutableLiveData<>();
 

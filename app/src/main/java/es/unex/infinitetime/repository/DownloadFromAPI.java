@@ -43,11 +43,9 @@ public class DownloadFromAPI implements Runnable{
 
         ContainerRepository containerRepository = ContainerRepository.getInstance();
 
-        InfiniteDatabase database = containerRepository.getDatabase();
-
-        userDAO = database.userDAO();
-        projectDAO = database.projectDAO();
-        taskDAO = database.taskDAO();
+        userDAO = containerRepository.getUserDAO();
+        projectDAO = containerRepository.getProjectDAO();
+        taskDAO = containerRepository.getTaskDAO();
 
         userRemoteDAO = containerRepository.getUserRemoteDAO();
         projectRemoteDAO = containerRepository.getProjectRemoteDAO();
