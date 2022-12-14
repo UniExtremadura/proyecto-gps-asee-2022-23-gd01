@@ -35,7 +35,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonarqube --info
+        run: bash ./gradlew build sonarqube --info
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
@@ -82,7 +82,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
         with:
-          tag_name: ultimate
           release_name: InfiniteTime
       - name: Upload Release APK
         id: upload_release_asset
