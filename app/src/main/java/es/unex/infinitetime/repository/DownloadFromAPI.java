@@ -39,17 +39,21 @@ public class DownloadFromAPI implements Runnable{
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    public DownloadFromAPI(Retrofit retrofit) {
+    public DownloadFromAPI() {
 
-        userRemoteDAO = retrofit.create(UserRemoteDAO.class);
-        projectRemoteDAO = retrofit.create(ProjectRemoteDAO.class);
-        taskRemoteDAO = retrofit.create(TaskRemoteDAO.class);
-        favoriteRemoteDAO = retrofit.create(FavoriteRemoteDAO.class);
-        sharedProjectRemoteDAO = retrofit.create(SharedProjectRemoteDAO.class);
+        ContainerRepository containerRepository = ContainerRepository.getInstance();
 
-        userDAO = InfiniteDatabase.getDatabase(null).userDAO();
-        projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
-        taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
+        InfiniteDatabase database = containerRepository.getDatabase();
+
+        userDAO = database.userDAO();
+        projectDAO = database.projectDAO();
+        taskDAO = database.taskDAO();
+
+        userRemoteDAO = containerRepository.getUserRemoteDAO();
+        projectRemoteDAO = containerRepository.getProjectRemoteDAO();
+        taskRemoteDAO = containerRepository.getTaskRemoteDAO();
+        favoriteRemoteDAO = containerRepository.getFavoriteRemoteDAO();
+        sharedProjectRemoteDAO = containerRepository.getSharedProjectRemoteDAO();
     }
 
     @Override

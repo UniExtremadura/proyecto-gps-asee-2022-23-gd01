@@ -21,8 +21,6 @@ public class Repository {
 
     private static Repository instance;
 
-    public final String BASE_URL = "https://sheet.best/api/sheets/421e4602-4291-4ed8-aed3-83969a14ea31/";
-
     private final UploadToAPI uploadToAPI;
     private final DownloadFromAPI downloadFromAPI;
 
@@ -33,18 +31,15 @@ public class Repository {
     private final MutableLiveData<Long> userId;
 
     private Repository() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
         userDAO = InfiniteDatabase.getDatabase(null).userDAO();
         projectDAO = InfiniteDatabase.getDatabase(null).projectDAO();
         taskDAO = InfiniteDatabase.getDatabase(null).taskDAO();
 
-        downloadFromAPI = new DownloadFromAPI(retrofit);
-        uploadToAPI = new UploadToAPI(retrofit);
         userId = new MutableLiveData<>();
+
+        downloadFromAPI = new DownloadFromAPI();
+        uploadToAPI = new UploadToAPI();
     }
 
     public static Repository getInstance() {

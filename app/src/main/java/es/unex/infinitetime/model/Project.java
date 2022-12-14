@@ -18,6 +18,7 @@ import es.unex.infinitetime.api.ProjectRemote;
                     childColumns = "user_id",
                     onDelete = CASCADE)
     }, indices = {@Index(value = {"user_id"})})
+
 public class Project {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
