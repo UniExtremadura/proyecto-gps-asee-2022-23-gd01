@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
                     else setDrawerEnabled(destination.getId() != R.id.settingsFragment || openedSession);
                 });
 
-        if(savedInstanceState == null && !viewModel.isSessionOpen()) {
+        if(savedInstanceState == null && !openedSession) {
             NavOptions navOptions = new NavOptions.Builder()
                     .setPopUpTo(R.id.favorite, true)
                     .build();

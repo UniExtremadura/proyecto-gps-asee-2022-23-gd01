@@ -2,6 +2,7 @@ package es.unex.infinitetime.ui.shared;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +20,11 @@ import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Project;
 import es.unex.infinitetime.model.SharedProject;
 import es.unex.infinitetime.model.User;
+import es.unex.infinitetime.model.UserShared;
 import es.unex.infinitetime.viewmodel.SharedViewModel;
 
 public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder> {
-    private List<User> mItems = new ArrayList<>();
+    private List<UserShared> mItems = new ArrayList<>();
     private SharedViewModel sharedViewModel;
     Context mContext;
 
@@ -59,7 +61,7 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
         return mItems.size();
     }
 
-    public void add(User item) {
+    public void add(UserShared item) {
 
         mItems.add(item);
         notifyDataSetChanged();
@@ -73,7 +75,7 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
 
     }
 
-    public void load(List<User> items) {
+    public void load(List<UserShared> items) {
 
         mItems.clear();
         mItems = items;
@@ -101,14 +103,13 @@ public class SharedAdapter extends RecyclerView.Adapter<SharedAdapter.ViewHolder
             this.sharedViewModel = sharedViewModel;
         }
 
-        public void bind(final User item) {
+        public void bind(final UserShared item) {
 
             binding.textUsernameShared.setText(item.getUsername());
-            AppExecutors.getInstance().diskIO().execute(() -> {
-                binding.sharedCheckBox.setChecked(sharedViewModel.isShared(item.getId()));
-                binding.sharedCheckBox.setOnCheckedChangeListener((v, isChecked) -> {
-                    sharedViewModel.switchShared(item.getId());
-                });
+            binding.sharedCheckBox.setChecked(item.isShared());
+
+            binding.sharedCheckBox.setOnCheckedChangeListener((v, isChecked) -> {
+                sharedViewModel.switchShared(item.getId(), isChecked);
             });
         }
 

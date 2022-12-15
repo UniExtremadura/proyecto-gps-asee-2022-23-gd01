@@ -1,5 +1,7 @@
 package es.unex.infinitetime.repository;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -7,15 +9,13 @@ import androidx.lifecycle.Transformations;
 import java.util.List;
 
 import es.unex.infinitetime.AppExecutors;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Project;
 import es.unex.infinitetime.model.ProjectDAO;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskDAO;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.model.UserDAO;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import es.unex.infinitetime.model.UserShared;
 
 public class Repository {
 
@@ -29,6 +29,16 @@ public class Repository {
     private final TaskDAO taskDAO;
 
     private final MutableLiveData<Long> userId;
+    private final MutableLiveData<Long> projectId;
+
+    private final LiveData<User> user;
+    private final LiveData<List<Project>> projects;
+    private final LiveData<List<Task>> favoriteTasks;
+    private final LiveData<List<UserShared>> usersShared;
+
+    private final LiveData<Integer> tasksNumToDo;
+    private final LiveData<Integer> tasksNumDoing;
+    private final LiveData<Integer> tasksNumDone;
 
     private Repository() {
 
@@ -39,9 +49,19 @@ public class Repository {
         taskDAO = containerRepository.getTaskDAO();
 
         userId = new MutableLiveData<>();
+        projectId = new MutableLiveData<>();
 
         downloadFromAPI = new DownloadFromAPI();
         uploadToAPI = new UploadToAPI();
+
+        user = Transformations.switchMap(getUserId(), userDAO::getUser);
+        projects = Transformations.switchMap(getUserId(), userDAO::getAllProjectsOfUser);
+        favoriteTasks = Transformations.switchMap(getUserId(), userDAO::getFavoriteTasks);
+        usersShared = Transformations.switchMap(getProjectId(), userDAO::getUsersShared);
+
+        tasksNumToDo = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 0));
+        tasksNumDoing = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 1));
+        tasksNumDone = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 2));
     }
 
     public static Repository getInstance() {
@@ -67,16 +87,20 @@ public class Repository {
         this.userId.setValue(userId);
     }
 
+    public void setProjectId(long projectId) {
+        this.projectId.setValue(projectId);
+    }
+
     public LiveData<User> getUser(){
-        return Transformations.switchMap(getUserId(), userDAO::getUser);
+        return user;
     }
 
     public LiveData<List<Project>> getAllProjectsUser(){
-        return Transformations.switchMap(getUserId(), userDAO::getAllProjectsOfUser);
+        return projects;
     }
 
     public LiveData<List<Task>> getFavoriteTasks() {
-        return Transformations.switchMap(getUserId(), userDAO::getFavoriteTasks);
+        return favoriteTasks;
     }
 
     public LiveData<List<Task>> getTasksProject(long projectId) {
@@ -84,23 +108,31 @@ public class Repository {
     }
 
     public boolean userExists(String username){
-        return userDAO.getUser(username) != null;
+        return userDAO.usernameExists(username);
     }
 
-    public LiveData<List<User>> getAllUsers(){
-        return userDAO.getAllUsers();
+    public LiveData<List<UserShared>> getUsersShared(){
+        return usersShared;
     }
 
-    public LiveData<Integer> getTasksNumByState(int state){
-        return Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, state));
+    private LiveData<Long> getProjectId() {
+        return projectId;
+    }
+
+    public LiveData<Integer> getTasksNumToDo(){
+        return tasksNumToDo;
+    }
+
+    public LiveData<Integer> getTasksNumDoing(){
+        return tasksNumDoing;
+    }
+
+    public LiveData<Integer> getTasksNumDone(){
+        return tasksNumDone;
     }
 
     public boolean isInFavorite(long taskId){
         return taskDAO.getFavorite(getUserId().getValue(), taskId) != null;
-    }
-
-    public boolean isShared(long userId, long projectId){
-        return projectDAO.getSharedProject(userId, projectId) != null;
     }
 
     public void insertUser(User user){
@@ -147,12 +179,12 @@ public class Repository {
         taskDAO.removeFavorite(getUserId().getValue(), taskId);
     }
 
-    public void shareProject(long userId, long projectId){
-        projectDAO.shareProject(projectId, userId);
+    public void shareProject(long userId){
+        AppExecutors.getInstance().diskIO().execute(() -> projectDAO.shareProject(projectId.getValue(), userId));
     }
 
-    public void stopSharingProject(long userId, long projectId){
-        projectDAO.stopSharingProject(userId, projectId);
+    public void stopSharingProject(long userId){
+        AppExecutors.getInstance().diskIO().execute(() -> projectDAO.stopSharingProject(projectId.getValue(), userId));
     }
 
     public User getUserByUsername(String username){

@@ -15,14 +15,14 @@ public class StatisticsViewModel extends ViewModel {
     }
 
     public LiveData<Integer> getTasksNumToDo(){
-        return repository.getTasksNumByState(TaskState.TODO.ordinal());
+        return repository.getTasksNumToDo();
     }
 
     public LiveData<Integer> getTasksNumDoing(){
-        return repository.getTasksNumByState(TaskState.DOING.ordinal());
+        return repository.getTasksNumDoing();
     }
 
     public LiveData<Integer> getTasksNumDone(){
-        return repository.getTasksNumByState(TaskState.DONE.ordinal());
+        return repository.getTasksNumDone();
     }
 }

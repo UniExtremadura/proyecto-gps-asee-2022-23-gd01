@@ -13,12 +13,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
-
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentSharedBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.viewmodel.SharedViewModel;
 
 
@@ -53,7 +48,7 @@ public class SharedFragment extends Fragment {
         binding = FragmentSharedBinding.inflate(inflater, container, false);
         sharedViewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
 
-        sharedViewModel.getUsers().observe(getViewLifecycleOwner(), users -> {
+        sharedViewModel.getUsersShared().observe(getViewLifecycleOwner(), users -> {
             mAdapter.load(users);
         });
 

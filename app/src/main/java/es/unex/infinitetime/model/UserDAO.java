@@ -1,9 +1,7 @@
 package es.unex.infinitetime.model;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
@@ -12,6 +10,9 @@ import java.util.List;
 
 @Dao
 public interface UserDAO {
+
+    @Query("SELECT EXISTS(SELECT 1 FROM user WHERE username = :username)")
+    boolean usernameExists(String username);
 
     @Query("SELECT * FROM user WHERE username = :username")
     User getUser(String username);
@@ -22,8 +23,8 @@ public interface UserDAO {
     @Query("SELECT * FROM user WHERE id = :userId")
     User getUserWithoutLiveData(long userId);
 
-    @Query("SELECT * FROM user")
-    LiveData<List<User>> getAllUsers();
+    @Query("SELECT id, username, EXISTS(SELECT * FROM shared_project WHERE user_id=id and project_id=:projectId) AS is_shared FROM user")
+    LiveData<List<UserShared>> getUsersShared(long projectId);
 
     @Query("SELECT * FROM user")
     List<User> getAllUsersWithoutLiveData();
