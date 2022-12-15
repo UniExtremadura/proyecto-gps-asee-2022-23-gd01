@@ -7,6 +7,7 @@ import es.unex.infinitetime.api.FavoriteRemote;
 import es.unex.infinitetime.api.FavoriteRemoteDAO;
 import es.unex.infinitetime.api.ProjectRemote;
 import es.unex.infinitetime.api.ProjectRemoteDAO;
+import es.unex.infinitetime.api.RemoteDAOs;
 import es.unex.infinitetime.api.SharedProjectRemote;
 import es.unex.infinitetime.api.SharedProjectRemoteDAO;
 import es.unex.infinitetime.api.TaskRemote;
@@ -22,7 +23,6 @@ import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskDAO;
 import es.unex.infinitetime.model.User;
 import es.unex.infinitetime.model.UserDAO;
-import retrofit2.Retrofit;
 
 public class UploadToAPI implements Runnable {
 
@@ -36,19 +36,16 @@ public class UploadToAPI implements Runnable {
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
 
-    public UploadToAPI() {
+    public UploadToAPI(InfiniteDatabase database, RemoteDAOs remoteDAOs) {
+        userDAO = database.userDAO();
+        projectDAO = database.projectDAO();
+        taskDAO = database.taskDAO();
 
-        ContainerRepository containerRepository = ContainerRepository.getInstance();
-
-        userDAO = containerRepository.getUserDAO();
-        projectDAO = containerRepository.getProjectDAO();
-        taskDAO = containerRepository.getTaskDAO();
-
-        userRemoteDAO = containerRepository.getUserRemoteDAO();
-        projectRemoteDAO = containerRepository.getProjectRemoteDAO();
-        taskRemoteDAO = containerRepository.getTaskRemoteDAO();
-        favoriteRemoteDAO = containerRepository.getFavoriteRemoteDAO();
-        sharedProjectRemoteDAO = containerRepository.getSharedProjectRemoteDAO();
+        userRemoteDAO = remoteDAOs.getUserRemoteDAO();
+        projectRemoteDAO = remoteDAOs.getProjectRemoteDAO();
+        taskRemoteDAO = remoteDAOs.getTaskRemoteDAO();
+        favoriteRemoteDAO = remoteDAOs.getFavoriteRemoteDAO();
+        sharedProjectRemoteDAO = remoteDAOs.getSharedProjectRemoteDAO();
     }
 
     @Override

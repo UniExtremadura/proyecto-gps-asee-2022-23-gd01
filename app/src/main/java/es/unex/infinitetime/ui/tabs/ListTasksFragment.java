@@ -1,16 +1,14 @@
 package es.unex.infinitetime.ui.tabs;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -20,7 +18,7 @@ import es.unex.infinitetime.databinding.FragmentListTasksBinding;
 
 public class ListTasksFragment extends Fragment {
 
-    public static final String[] namesTabs = {"Sin empezar", "En progreso", "Hechas"};
+    public static final String[] NAMES_TABS = {"Sin empezar", "En progreso", "Hechas"};
 
     public ListTasksFragment() {
 
@@ -44,11 +42,10 @@ public class ListTasksFragment extends Fragment {
         viewPager.setAdapter(tabsTasksListAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> tab.setText(namesTabs[position])
+                (tab, position) -> tab.setText(NAMES_TABS[position])
         ).attach();
 
-        FloatingActionButton addNewTask = binding.AddProject;
-        addNewTask.setOnClickListener(view -> {
+        binding.AddProject.setOnClickListener(view -> {
             Navigation.findNavController(view).navigate(R.id.action_listTasksFragment_to_addTaskFragment);
         });
 

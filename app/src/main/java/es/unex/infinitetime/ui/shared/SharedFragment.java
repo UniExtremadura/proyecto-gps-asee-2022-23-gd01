@@ -1,5 +1,6 @@
 package es.unex.infinitetime.ui.shared;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,10 +10,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.databinding.FragmentSharedBinding;
 import es.unex.infinitetime.viewmodel.SharedViewModel;
 
@@ -46,7 +49,9 @@ public class SharedFragment extends Fragment {
         Log.d("Depurando", "onCreateView favorite");
 
         binding = FragmentSharedBinding.inflate(inflater, container, false);
-        sharedViewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        sharedViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(SharedViewModel.class);
 
         sharedViewModel.getUsersShared().observe(getViewLifecycleOwner(), users -> {
             mAdapter.load(users);

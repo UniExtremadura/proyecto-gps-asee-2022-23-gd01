@@ -1,26 +1,22 @@
 package es.unex.infinitetime.ui.stats;
 
+import android.app.Application;
 import android.graphics.Color;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
 import org.eazegraph.lib.charts.PieChart;
 import org.eazegraph.lib.models.PieModel;
 
-
-import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.databinding.FragmentStatsBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.model.TaskState;
-import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.viewmodel.StatisticsViewModel;
 
 
@@ -53,7 +49,9 @@ public class StatsFragment extends Fragment {
         doneTv = binding.TareasHechas;
 
         pieChart = binding.piechart;
-        viewModel = ViewModelProviders.of(getActivity()).get(StatisticsViewModel.class);
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        viewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(StatisticsViewModel.class);
         setData();
 
         return binding.getRoot();

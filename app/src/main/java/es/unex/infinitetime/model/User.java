@@ -6,7 +6,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import es.unex.infinitetime.api.UserRemote;
-import es.unex.infinitetime.utils.Hash;
+import es.unex.infinitetime.cryptography.Hash;
 
 @Entity(tableName = "user")
 public class User {

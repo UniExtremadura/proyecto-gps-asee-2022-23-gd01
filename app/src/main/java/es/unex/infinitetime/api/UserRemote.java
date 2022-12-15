@@ -4,8 +4,8 @@ package es.unex.infinitetime.api;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import es.unex.infinitetime.cryptography.Hash;
 import es.unex.infinitetime.model.User;
-import es.unex.infinitetime.utils.Hash;
 
 public class UserRemote {
 

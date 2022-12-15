@@ -1,26 +1,23 @@
 package es.unex.infinitetime.ui.tabs;
 
+import android.app.Application;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentTasksBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
 
@@ -28,10 +25,8 @@ import es.unex.infinitetime.viewmodel.TaskViewModel;
 public class ListTasksStateFragment extends Fragment {
 
     public static final String ARG_PARAM1 = "taskState";
-    public static final String ARG_PARAM2 = "projectId";
 
     private TaskState state;
-    private long projectId;
 
     ListTasksStateAdapter adapter;
     private FragmentTasksBinding binding;
@@ -52,7 +47,9 @@ public class ListTasksStateFragment extends Fragment {
         state = TaskState.values()[bundle.getInt("taskState")];
 
         binding = FragmentTasksBinding.inflate(inflater, container, false);
-        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        taskViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(TaskViewModel.class);
 
         return binding.getRoot();
     }
@@ -70,10 +67,17 @@ public class ListTasksStateFragment extends Fragment {
             Navigation.findNavController(binding.getRoot()).navigate(R.id.action_listTasksFragment_to_editTaskFragment);
         }, taskViewModel);
 
-        taskViewModel.getTasksProject().observe(getViewLifecycleOwner(), tasks -> {
-            tasks.removeIf(task -> task.getState() != state);
-            adapter.load(tasks);
-        });
+        switch(state){
+            case TODO:
+                taskViewModel.getTasksToDo().observe(getViewLifecycleOwner(), tasks -> adapter.load(tasks));
+                break;
+            case DOING:
+                taskViewModel.getTasksDoing().observe(getViewLifecycleOwner(), tasks -> adapter.load(tasks));
+                break;
+            case DONE:
+                taskViewModel.getTasksDone().observe(getViewLifecycleOwner(), tasks -> adapter.load(tasks));
+                break;
+        }
 
         mRecyclerView.setAdapter(adapter);
     }

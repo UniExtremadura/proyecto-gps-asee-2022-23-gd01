@@ -2,7 +2,6 @@ package es.unex.infinitetime.ui.favorite;
 
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +14,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
@@ -109,19 +105,14 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
-            AppExecutors.getInstance().diskIO().execute(() -> {
-                boolean isFavorite = taskViewModel.isInFavorite(task.getId());
-                AppExecutors.getInstance().mainThread().execute(() -> {
-                    binding.checkboxFavorite.setChecked(isFavorite);
-                    binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                        taskViewModel.switchFavorite(task.getId());
-                    });
+            binding.checkboxFavorite.setChecked(true);
+            binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                taskViewModel.switchFavorite(task.getId(), isChecked);
+            });
 
-                    binding.deleteButtonTask.setOnClickListener(v -> {
-                        taskViewModel.deleteTask(task.getId());
-                        Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
-                    });
-                });
+            binding.deleteButtonTask.setOnClickListener(v -> {
+                taskViewModel.deleteTask(task.getId());
+                Snackbar.make(v, "Tarea -"+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
             });
 
         }

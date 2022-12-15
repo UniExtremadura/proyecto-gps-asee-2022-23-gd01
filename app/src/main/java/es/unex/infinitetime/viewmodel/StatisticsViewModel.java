@@ -3,15 +3,14 @@ package es.unex.infinitetime.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
-import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.repository.Repository;
 
 public class StatisticsViewModel extends ViewModel {
 
     private final Repository repository;
 
-    public StatisticsViewModel() {
-        repository = Repository.getInstance();
+    public StatisticsViewModel(Repository repository) {
+        this.repository = repository;
     }
 
     public LiveData<Integer> getTasksNumToDo(){

@@ -1,17 +1,16 @@
 package es.unex.infinitetime.ui.task;
 
+import android.app.Application;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -19,13 +18,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
-import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class EditTaskFragment extends Fragment {
 
@@ -42,7 +40,10 @@ public class EditTaskFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentTaskBinding.inflate(inflater, container, false);
-        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        taskViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(TaskViewModel.class);
         return binding.getRoot();
     }
 
@@ -66,7 +67,7 @@ public class EditTaskFragment extends Fragment {
             binding.priorityTask.setText(String.valueOf(task.getPriority()));
             binding.spinnerTaskState.setSelection(task.getState().ordinal());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
             try {
                 binding.dateTask.setText(sdf.format(task.getDeadline()));
             }

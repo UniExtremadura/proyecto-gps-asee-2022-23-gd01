@@ -1,5 +1,6 @@
 package es.unex.infinitetime.ui.favorite;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,19 +9,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
-
-import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentFavoriteBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 
@@ -48,7 +45,10 @@ public class FavoriteFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentFavoriteBinding.inflate(inflater, container, false);
-        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        taskViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(TaskViewModel.class);
 
         return binding.getRoot();
     }
@@ -69,9 +69,7 @@ public class FavoriteFragment extends Fragment {
 
         mRecyclerView.setAdapter(mAdapter);
 
-        taskViewModel.getFavoriteTasks().observe(getViewLifecycleOwner(), tasks -> {
-            mAdapter.load(tasks);
-        });
+        taskViewModel.getFavoriteTasks().observe(getViewLifecycleOwner(), tasks -> mAdapter.load(tasks));
 
     }
 

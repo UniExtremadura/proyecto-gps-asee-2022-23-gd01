@@ -1,5 +1,6 @@
 package es.unex.infinitetime.ui.project;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,12 +9,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentListOfProjectsBinding;
 import es.unex.infinitetime.viewmodel.ProjectViewModel;
@@ -51,9 +55,13 @@ public class ListOfProjectsFragment extends Fragment {
 
 
         binding = FragmentListOfProjectsBinding.inflate(inflater, container, false);
-        projectViewModel = ViewModelProviders.of(getActivity()).get(ProjectViewModel.class);
-        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
-        sharedViewModel = ViewModelProviders.of(getActivity()).get(SharedViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+
+        projectViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(ProjectViewModel.class);
+        taskViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(TaskViewModel.class);
+        sharedViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(SharedViewModel.class);
 
         return binding.getRoot();
     }

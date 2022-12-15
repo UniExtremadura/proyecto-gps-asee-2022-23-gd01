@@ -1,23 +1,24 @@
 package es.unex.infinitetime.ui.project;
 
+import android.app.Application;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentAddProjectBinding;
 import es.unex.infinitetime.model.Project;
-import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.viewmodel.ProjectViewModel;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
@@ -44,8 +45,12 @@ public class AddProjectFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         binding = FragmentAddProjectBinding.inflate(inflater, container, false);
-        projectViewModel = ViewModelProviders.of(getActivity()).get(ProjectViewModel.class);
-        userViewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        projectViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(ProjectViewModel.class);
+        userViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(UserViewModel.class);
+
         return binding.getRoot();
     }
 

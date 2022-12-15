@@ -1,28 +1,26 @@
 package es.unex.infinitetime.ui.user;
 
+import android.app.Application;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.navigation.Navigation;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 
+import com.google.android.material.snackbar.Snackbar;
+
+import es.unex.infinitetime.AppContainer;
 import es.unex.infinitetime.AppExecutors;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.R;
+import es.unex.infinitetime.cryptography.Hash;
 import es.unex.infinitetime.databinding.FragmentUserBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.User;
-import es.unex.infinitetime.repository.PersistenceUser;
-import es.unex.infinitetime.utils.Hash;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class UserFragment extends Fragment {
@@ -38,7 +36,11 @@ public class UserFragment extends Fragment {
 
         binding = FragmentUserBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        userViewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        userViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(UserViewModel.class);
+
         return root;
     }
 

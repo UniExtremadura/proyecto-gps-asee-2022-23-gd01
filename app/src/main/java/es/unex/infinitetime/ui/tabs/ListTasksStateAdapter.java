@@ -14,17 +14,15 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.R;
 import es.unex.infinitetime.databinding.FragmentItemTaskBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
 import es.unex.infinitetime.model.Task;
-import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.model.TaskWithFavorite;
 import es.unex.infinitetime.viewmodel.TaskViewModel;
 
 public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAdapter.ViewHolder> {
 
-    private List<Task> mItems = new ArrayList<>();
+    private List<TaskWithFavorite> mItems = new ArrayList<>();
     private TaskViewModel taskViewModel;
     Context mContext;
 
@@ -47,7 +45,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_item_task, parent, false);
 
-        return new ListTasksStateAdapter.ViewHolder(mContext,v, taskViewModel);
+        return new ListTasksStateAdapter.ViewHolder(mContext, v, taskViewModel);
     }
 
     @Override
@@ -61,7 +59,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
         return mItems.size();
     }
 
-    public void add(Task item) {
+    public void add(TaskWithFavorite item) {
 
         mItems.add(item);
         notifyDataSetChanged();
@@ -75,7 +73,7 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
     }
 
-    public void load(List<Task> items){
+    public void load(List<TaskWithFavorite> items){
 
         mItems.clear();
         mItems = items;
@@ -102,10 +100,9 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
 
         }
 
-        public void bind(final Task task, final ListTasksStateAdapter.OnItemClickListener listener) {
+        public void bind(final TaskWithFavorite task, final ListTasksStateAdapter.OnItemClickListener listener) {
 
             binding.nameTaskItem.setText(task.getName());
-            InfiniteDatabase db = InfiniteDatabase.getDatabase(mContext);
             itemView.setOnClickListener(v -> listener.onItemClick(task));
 
             Button delete = binding.deleteButtonTask;
@@ -115,15 +112,9 @@ public class ListTasksStateAdapter extends RecyclerView.Adapter<ListTasksStateAd
                 Snackbar.make(v, "Tarea "+ task.getName()+"- borrada", Snackbar.LENGTH_SHORT).show();
             });
 
-            AppExecutors.getInstance().diskIO().execute(() -> {
-                boolean isFavorite = taskViewModel.isInFavorite(task.getId());
-                AppExecutors.getInstance().mainThread().execute(() -> {
-                    binding.checkboxFavorite.setChecked(isFavorite);
-                    binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-                        taskViewModel.switchFavorite(task.getId());
-                    });
-                });
-
+            binding.checkboxFavorite.setChecked(task.isFavorite());
+            binding.checkboxFavorite.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+                taskViewModel.switchFavorite(task.getId(), isChecked);
             });
         }
     }

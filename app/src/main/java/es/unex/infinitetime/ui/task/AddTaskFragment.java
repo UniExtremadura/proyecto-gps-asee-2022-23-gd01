@@ -1,21 +1,23 @@
 package es.unex.infinitetime.ui.task;
 
+import android.app.Application;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import es.unex.infinitetime.AppContainer;
+import es.unex.infinitetime.InfiniteTime;
 import es.unex.infinitetime.databinding.FragmentTaskBinding;
 import es.unex.infinitetime.model.Task;
 import es.unex.infinitetime.model.TaskState;
@@ -41,8 +43,12 @@ public class AddTaskFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        taskViewModel = ViewModelProviders.of(getActivity()).get(TaskViewModel.class);
-        userViewModel = ViewModelProviders.of(getActivity()).get(UserViewModel.class);
+
+        Application application = getActivity().getApplication();
+        AppContainer appContainer = ((InfiniteTime) application).getAppContainer();
+        taskViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(TaskViewModel.class);
+        userViewModel = new ViewModelProvider(getActivity(), appContainer.factory).get(UserViewModel.class);
+
         binding = FragmentTaskBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -54,9 +60,7 @@ public class AddTaskFragment extends Fragment {
         binding.acceptTaskBtn.setOnClickListener(v -> {
 
             Task task = new Task();
-            if(binding.nameTask.getText().toString().isEmpty()
-            || binding.nameTask.getText().toString() == null
-            || binding.nameTask.getText().toString() == ""){
+            if(binding.nameTask.getText().toString().isEmpty() || binding.nameTask.getText().toString().equals("")){
                 task.setName("Tarea sin nombre");
             }else{
                 task.setName(binding.nameTask.getText().toString());
@@ -77,9 +81,11 @@ public class AddTaskFragment extends Fragment {
 
             if(binding.spinnerTaskState.getSelectedItem().toString().equals("Por hacer")){
                 task.setState(TaskState.TODO);
-            } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
+            }
+            else if(binding.spinnerTaskState.getSelectedItem().toString().equals("En progreso")){
                 task.setState(TaskState.DOING);
-            } else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
+            }
+            else if(binding.spinnerTaskState.getSelectedItem().toString().equals("Hechas")){
                 task.setState(TaskState.DONE);
             }
 

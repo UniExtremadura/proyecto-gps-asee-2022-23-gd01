@@ -2,29 +2,26 @@ package es.unex.infinitetime;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.Menu;
-
-import com.google.android.material.navigation.NavigationView;
+import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.navigation.NavigationView;
+
 import es.unex.infinitetime.databinding.ActivityMainBinding;
-import es.unex.infinitetime.model.InfiniteDatabase;
-import es.unex.infinitetime.repository.Repository;
 import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
@@ -52,7 +49,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        InfiniteDatabase.getDatabase(this);
+
+        AppContainer appContainer = ((InfiniteTime) getApplication()).getAppContainer();
+        appContainer.repository.downloadFromAPI();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         drawer = binding.drawerLayout;
@@ -78,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        UserViewModel viewModel = ViewModelProviders.of(this).get(UserViewModel.class);
+        UserViewModel viewModel = new ViewModelProvider(this, appContainer.factory).get(UserViewModel.class);
 
         PersistenceUser persistenceUser = PersistenceUser.getInstance();
         persistenceUser.setPreferences(mPrefs);

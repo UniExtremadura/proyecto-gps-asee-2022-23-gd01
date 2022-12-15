@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.List;
 
-import es.unex.infinitetime.AppExecutors;
 import es.unex.infinitetime.model.UserShared;
 import es.unex.infinitetime.repository.Repository;
 
@@ -16,12 +15,12 @@ public class SharedViewModel extends ViewModel {
     private final Repository repository;
     private long projectId;
 
-    public SharedViewModel() {
-        repository = Repository.getInstance();
+    public SharedViewModel(Repository repository) {
+        this.repository = repository;
     }
 
     public void setProjectId(long projectId) {
-        repository.setProjectId(projectId);
+        repository.setSharedProjectId(projectId);
     }
 
     public LiveData<List<UserShared>> getUsersShared() {

@@ -14,8 +14,8 @@ public class ProjectViewModel extends ViewModel {
     private final Repository repository;
     private final MutableLiveData<Project> selectedProject;
 
-    public ProjectViewModel() {
-        repository = Repository.getInstance();
+    public ProjectViewModel(Repository repository) {
+        this.repository = repository;
         selectedProject = new MutableLiveData<>();
     }
 

@@ -9,8 +9,8 @@ import es.unex.infinitetime.repository.Repository;
 public class UserViewModel extends ViewModel {
     private final Repository repository;
 
-    public UserViewModel() {
-        repository = Repository.getInstance();
+    public UserViewModel(Repository repository) {
+        this.repository = repository;
     }
 
     public LiveData<User> getUser() {

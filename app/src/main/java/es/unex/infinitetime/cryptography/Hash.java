@@ -1,4 +1,4 @@
-package es.unex.infinitetime.utils;
+package es.unex.infinitetime.cryptography;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -12,7 +12,7 @@ public class Hash {
 	public static final int SALT_LENGTH = 32;
 
     private MessageDigest hash;
-    private SecureRandom random;
+    private final SecureRandom random;
 
     public Hash(){
         try {
