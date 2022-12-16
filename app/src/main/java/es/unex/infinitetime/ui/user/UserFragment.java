@@ -56,7 +56,6 @@ public class UserFragment extends Fragment {
             }
         });
 
-
         binding.btnUser.setOnClickListener(v -> {
 
             String username = binding.textEditUsernameUser.getText().toString();
