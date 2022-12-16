@@ -36,7 +36,7 @@ public class Repository {
 
     private final LiveData<User> user;
     private final LiveData<List<Project>> projects;
-    private final LiveData<List<Task>> favoriteTasks;
+    private final LiveData<List<TaskWithFavorite>> favoriteTasks;
     private final LiveData<List<UserShared>> usersShared;
 
     private final LiveData<List<TaskWithFavorite>> taskToDo;
@@ -118,7 +118,7 @@ public class Repository {
         return projects;
     }
 
-    public LiveData<List<Task>> getFavoriteTasks() {
+    public LiveData<List<TaskWithFavorite>> getFavoriteTasks() {
         return favoriteTasks;
     }
 
@@ -202,8 +202,14 @@ public class Repository {
         AppExecutors.getInstance().diskIO().execute(() -> projectDAO.delete(projectId));
     }
 
-    public void addFavorite(long taskId){
-        AppExecutors.getInstance().diskIO().execute(() -> taskDAO.addFavorite(getUserId().getValue(), taskId));
+    public void addFavorite(long taskId) {
+        AppExecutors.getInstance().diskIO().execute(() -> {
+            try {
+                taskDAO.addFavorite(getUserId().getValue(), taskId);
+            } catch (Exception ignored) {
+
+            }
+        });
     }
 
     public void removeFavorite(long taskId){

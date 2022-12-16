@@ -27,7 +27,7 @@ public class TaskViewModel extends ViewModel {
         return repository.getTaskProjectId().getValue();
     }
 
-    public LiveData<List<Task>> getFavoriteTasks() {
+    public LiveData<List<TaskWithFavorite>> getFavoriteTasks() {
         return repository.getFavoriteTasks();
     }
 
