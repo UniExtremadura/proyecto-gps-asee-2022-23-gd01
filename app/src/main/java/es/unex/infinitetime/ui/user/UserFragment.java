@@ -49,9 +49,11 @@ public class UserFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         userViewModel.getUser().observe(getViewLifecycleOwner(), user -> {
-            binding.textEditUsernameUser.setText(user.getUsername());
-            binding.textEditEmailUser.setText(user.getEmail());
-            oldUsername = user.getUsername();
+            if (user != null) {
+                binding.textEditUsernameUser.setText(user.getUsername());
+                binding.textEditEmailUser.setText(user.getEmail());
+                oldUsername = user.getUsername();
+            }
         });
 
         binding.btnUser.setOnClickListener(v -> {
