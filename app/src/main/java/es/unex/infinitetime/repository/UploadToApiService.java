@@ -25,7 +25,6 @@ public class UploadToApiService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("UploadToApiService", "onStartCommand");
         InfiniteDatabase db = InfiniteDatabase.getDatabase(getApplicationContext());
         RemoteDAOs remoteDAOs = new RemoteDAOs();
         UploadToAPI uploadToAPI = new UploadToAPI(db, remoteDAOs);

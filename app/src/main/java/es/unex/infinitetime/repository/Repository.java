@@ -21,6 +21,7 @@ import es.unex.infinitetime.model.UserShared;
 public class Repository {
 
     private static Repository instance;
+    private PersistenceUser persistenceUser;
 
     private final UploadToAPI uploadToAPI;
     private final DownloadFromAPI downloadFromAPI;
@@ -28,7 +29,6 @@ public class Repository {
     private final UserDAO userDAO;
     private final ProjectDAO projectDAO;
     private final TaskDAO taskDAO;
-
 
     private final MutableLiveData<Long> userId;
     private final MutableLiveData<Long> taskProjectId;
@@ -47,7 +47,9 @@ public class Repository {
     private final LiveData<Integer> tasksNumDoing;
     private final LiveData<Integer> tasksNumDone;
 
-    private Repository(InfiniteDatabase database, RemoteDAOs remoteDAOs) {
+    private Repository(InfiniteDatabase database, RemoteDAOs remoteDAOs, PersistenceUser persistenceUser) {
+
+        this.persistenceUser = persistenceUser;
 
         userDAO = database.userDAO();
         projectDAO = database.projectDAO();
@@ -75,9 +77,9 @@ public class Repository {
         tasksNumDone = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 2));
     }
 
-    public static Repository getInstance(InfiniteDatabase database, RemoteDAOs remoteDAOs) {
+    public static Repository getInstance(InfiniteDatabase database, RemoteDAOs remoteDAOs, PersistenceUser persistenceUser) {
         if (instance == null) {
-            instance = new Repository(database, remoteDAOs);
+            instance = new Repository(database, remoteDAOs, persistenceUser);
         }
         return instance;
     }
@@ -215,20 +217,20 @@ public class Repository {
     }
 
     public void closeSession(){
-        PersistenceUser.getInstance().deleteUserId();
+        persistenceUser.deleteUserId();
     }
 
-    public void openSession(long userId){
-        PersistenceUser.getInstance().setUserId(userId);
-        PersistenceUser.getInstance().saveUserId();
+    public void openSession(long userId) {
+        persistenceUser.setUserId(userId);
+        persistenceUser.saveUserId();
         setUserId(userId);
         setTaskProjectId(0);
     }
 
     public boolean isSessionOpen() {
-        boolean opened = PersistenceUser.getInstance().isSessionOpen();
+        boolean opened = persistenceUser.isSessionOpen();
         if (opened) {
-            setUserId(PersistenceUser.getInstance().getUserId());
+            setUserId(persistenceUser.getUserId());
         }
         return opened;
     }

@@ -58,12 +58,12 @@
     <string name="txt_sin_definir">Sin definir</string>
 
     <string-array name="app_theme">
-        <item>Tema Claro</item>
-        <item>Tema Oscuro</item>
+        <item>Claro</item>
+        <item>Oscuro</item>
     </string-array>
 
-    <string name="txt_theme_light">Tema Claro</string>
-    <string name="txt_theme_dark">Tema Oscuro</string>
+    <string name="txt_theme_light">Claro</string>
+    <string name="txt_theme_dark">Oscuro</string>
 
     <string name="desc_fab">Boton flotante</string>
     <string name="desc_fab_add_project">Boton flotante</string>

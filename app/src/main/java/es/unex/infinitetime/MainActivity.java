@@ -18,12 +18,10 @@ import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
 
 import es.unex.infinitetime.databinding.ActivityMainBinding;
-import es.unex.infinitetime.repository.PersistenceUser;
 import es.unex.infinitetime.repository.UploadToApiService;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
@@ -39,7 +37,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
     private NavController navController;
 
     private Toolbar toolbar;
-    private SharedPreferences mPrefs;
+    private AppContainer appContainer;
+
+    SharedPreferences.OnSharedPreferenceChangeListener themeListener;
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
@@ -53,11 +53,15 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         super.onCreate(savedInstanceState);
         startService(new Intent(getBaseContext(), UploadToApiService.class));
 
-        AppContainer appContainer = ((InfiniteTime) getApplication()).getAppContainer();
-        appContainer.repository.downloadFromAPI();
+        appContainer = ((InfiniteTime) getApplication()).getAppContainer();
+
+        if (savedInstanceState == null) {
+            appContainer.repository.downloadFromAPI();
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         drawer = binding.drawerLayout;
+
         setContentView(binding.getRoot());
 
         toolbar = binding.appBarMain.toolbar;
@@ -73,33 +77,29 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
                 .setOpenableLayout(drawer)
                 .build();
 
-        mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        themeListener = (sharedPreferences, key) -> {
+            if (key.equals("theme")) {
+                setTheme();
+            }
+        };
 
+        appContainer.sharedPreferences.registerOnSharedPreferenceChangeListener(themeListener);
+        setTheme();
 
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        UserViewModel viewModel = new ViewModelProvider(this, appContainer.factory).get(UserViewModel.class);
+        appContainer.persistenceUser.setPreferences(appContainer.sharedPreferences);
+        appContainer.persistenceUser.loadUserId();
 
-        PersistenceUser persistenceUser = PersistenceUser.getInstance();
-        persistenceUser.setPreferences(mPrefs);
-        persistenceUser.loadUserId();
+        UserViewModel viewModel = new ViewModelProvider(this, appContainer.factory).get(UserViewModel.class);
 
         boolean openedSession = viewModel.isSessionOpen();
 
         if (!openedSession) {
             navController.navigate(R.id.loginFragment);
         }
-
-        mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
-            if (key.equals("theme")) {
-                setTheme();
-            }
-        });
-
-        setTheme();
-
 
         Navigation.findNavController(this, R.id.nav_host_fragment_content_main)
                 .addOnDestinationChangedListener((controller, destination, arguments) -> {
@@ -160,9 +160,9 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
         }
     }
 
-    public void setTheme(){
-        String theme = mPrefs.getString("theme", "Tema Claro");
-        if (theme.equals("Tema Oscuro")) {
+    public void setTheme() {
+        String theme = appContainer.sharedPreferences.getString("theme", "Claro");
+        if (theme.equals("Oscuro")) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
