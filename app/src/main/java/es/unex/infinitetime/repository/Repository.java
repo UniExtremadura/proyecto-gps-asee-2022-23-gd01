@@ -212,6 +212,7 @@ public class Repository {
         });
     }
 
+
     public void removeFavorite(long taskId){
         AppExecutors.getInstance().diskIO().execute(() -> taskDAO.removeFavorite(getUserId().getValue(), taskId));
     }
