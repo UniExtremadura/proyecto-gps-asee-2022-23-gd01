@@ -1,5 +1,6 @@
 package es.unex.infinitetime;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import com.google.android.material.navigation.NavigationView;
 
 import es.unex.infinitetime.databinding.ActivityMainBinding;
 import es.unex.infinitetime.repository.PersistenceUser;
+import es.unex.infinitetime.repository.UploadToApiService;
 import es.unex.infinitetime.viewmodel.UserViewModel;
 
 public class MainActivity extends AppCompatActivity implements DrawerLocker {
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        startService(new Intent(getBaseContext(), UploadToApiService.class));
 
         AppContainer appContainer = ((InfiniteTime) getApplication()).getAppContainer();
         appContainer.repository.downloadFromAPI();

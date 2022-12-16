@@ -1,5 +1,7 @@
 package es.unex.infinitetime.repository;
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,7 @@ public class UploadToAPI implements Runnable {
     @Override
     public void run() {
         try {
+            Log.d("UploadToAPI", "Starting upload to API");
             List<User> users = userDAO.getAllUsersWithoutLiveData();
             assert users != null;
             userRemoteDAO.deleteUsers().execute();

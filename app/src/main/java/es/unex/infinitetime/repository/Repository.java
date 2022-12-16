@@ -216,14 +216,13 @@ public class Repository {
 
     public void closeSession(){
         PersistenceUser.getInstance().deleteUserId();
-        setUserId(0);
-        setTaskProjectId(0);
     }
 
     public void openSession(long userId){
         PersistenceUser.getInstance().setUserId(userId);
         PersistenceUser.getInstance().saveUserId();
         setUserId(userId);
+        setTaskProjectId(0);
     }
 
     public boolean isSessionOpen() {
