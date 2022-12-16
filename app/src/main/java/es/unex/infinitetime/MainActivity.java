@@ -92,13 +92,14 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
             navController.navigate(R.id.loginFragment);
         }
 
-
-
         mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if (key.equals("theme")) {
                 setTheme();
             }
         });
+
+        setTheme();
+
 
         Navigation.findNavController(this, R.id.nav_host_fragment_content_main)
                 .addOnDestinationChangedListener((controller, destination, arguments) -> {
