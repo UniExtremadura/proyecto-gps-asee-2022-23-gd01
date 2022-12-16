@@ -59,32 +59,37 @@ public class UserFragment extends Fragment {
             String username = binding.textEditUsernameUser.getText().toString();
             String email = binding.textEditEmailUser.getText().toString();
 
-            AppExecutors.getInstance().diskIO().execute(() -> {
+            if (!username.equals("") && !email.equals("")) {
+                AppExecutors.getInstance().diskIO().execute(() -> {
 
-                if(!username.equals("") && !email.equals("") && !usernameAlreadyExists(username)){
+                    if (!usernameAlreadyExists(username)) {
+                        String password = binding.textEditPasswordUser.getText().toString();
 
-                    String password = binding.textEditPasswordUser.getText().toString();
+                        User user = userViewModel.getUserWithoutLiveData();
+                        user.setUsername(username);
+                        user.setEmail(email);
 
-                    User user = userViewModel.getUserWithoutLiveData();
-                    user.setUsername(username);
-                    user.setEmail(email);
-
-                    // Sí la contraseña no está vacía, se cambia
-                    // y en caso contrario se mantiene la anterior
-                    if(!password.equals("")){
-                        Hash hash = new Hash();
-                        byte[] salt = hash.getSalt();
-                        byte[] hashPassword = hash.getHash(salt, password);
-                        user.setHash(hashPassword);
-                        user.setSalt(salt);
+                        // Sí la contraseña no está vacía, se cambia
+                        // y en caso contrario se mantiene la anterior
+                        if (!password.equals("")) {
+                            Hash hash = new Hash();
+                            byte[] salt = hash.getSalt();
+                            byte[] hashPassword = hash.getHash(salt, password);
+                            user.setHash(hashPassword);
+                            user.setSalt(salt);
+                        }
+                        userViewModel.updateUser(user);
+                    } else {
+                        AppExecutors.getInstance().mainThread().execute(() -> {
+                            Snackbar.make(view, "Ese nombre de usuario ya existe", Snackbar.LENGTH_LONG).show();
+                        });
                     }
-                    userViewModel.updateUser(user);
-                }
-                else{
-                    Snackbar.make(v, "Ninguno de los campos puede estar en blanco", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                }
-            });
+                });
+
+            } else {
+                Snackbar.make(v, "Ninguno de los campos puede estar en blanco", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
 
         });
 
