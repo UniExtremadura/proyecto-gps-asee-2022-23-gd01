@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements DrawerLocker {
             navController.navigate(R.id.loginFragment);
         }
 
-        setTheme();
+
 
         mPrefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
             if (key.equals("theme")) {
