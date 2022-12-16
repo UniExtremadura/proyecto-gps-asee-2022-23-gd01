@@ -5,7 +5,6 @@ import static java.lang.Thread.sleep;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -31,9 +30,6 @@ public class UploadToApiService extends Service {
 
         thread = new Thread(uploadToAPI);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
         return START_NOT_STICKY;
     }
 
@@ -45,7 +41,7 @@ public class UploadToApiService extends Service {
         // Evitar que el servicio termine antes de que termine el hilo
         // que sube los datos a la API
         try {
-            sleep(10000);
+            sleep(20000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
