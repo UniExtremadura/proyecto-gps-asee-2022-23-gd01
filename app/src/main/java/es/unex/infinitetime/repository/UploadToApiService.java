@@ -41,7 +41,7 @@ public class UploadToApiService extends Service {
         // Evitar que el servicio termine antes de que termine el hilo
         // que sube los datos a la API
         try {
-            sleep(20000);
+            sleep(60000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

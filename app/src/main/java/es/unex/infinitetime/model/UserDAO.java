@@ -32,7 +32,7 @@ public interface UserDAO {
     @Query("SELECT * FROM project WHERE user_id = :userId OR id IN (SELECT project_id FROM shared_project WHERE user_id = :userId)")
     LiveData<List<Project>> getAllProjectsOfUser(long userId);
 
-    @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId)")
+    @Query("SELECT * FROM task WHERE id IN (SELECT task_id FROM favorite WHERE user_id = :userId) ORDER BY priority DESC")
     LiveData<List<Task>> getFavoriteTasks(long userId);
 
     @Query("SELECT * FROM favorite")

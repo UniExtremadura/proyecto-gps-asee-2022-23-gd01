@@ -56,6 +56,8 @@ public class Repository {
         taskDAO = database.taskDAO();
 
         userId = new MutableLiveData<>();
+        userId.setValue(persistenceUser.getUserId());
+
         taskProjectId = new MutableLiveData<>();
         sharedProjectId = new MutableLiveData<>();
 
@@ -68,9 +70,9 @@ public class Repository {
 
         usersShared = Transformations.switchMap(sharedProjectId, userDAO::getUsersShared);
 
-        taskToDo = Transformations.switchMap(taskProjectId, (projectId) ->taskDAO.getTasksProject(projectId, 0));
-        taskDoing = Transformations.switchMap(taskProjectId, (projectId) ->taskDAO.getTasksProject(projectId, 1));
-        taskDone = Transformations.switchMap(taskProjectId, (projectId) ->taskDAO.getTasksProject(projectId, 2));
+        taskToDo = Transformations.switchMap(taskProjectId, (projectId) -> taskDAO.getTasksProject(projectId, getUserId().getValue(), 0));
+        taskDoing = Transformations.switchMap(taskProjectId, (projectId) -> taskDAO.getTasksProject(projectId, getUserId().getValue(), 1));
+        taskDone = Transformations.switchMap(taskProjectId, (projectId) -> taskDAO.getTasksProject(projectId, getUserId().getValue(), 2));
 
         tasksNumToDo = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 0));
         tasksNumDoing = Transformations.switchMap(getUserId(), userId -> taskDAO.getTasksNum(userId, 1));
